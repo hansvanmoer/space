@@ -5,9 +5,10 @@ AC_PREREQ([2.68])
 AC_INIT([space], [0.1], [hansvm.projects@gmail.com])
 AC_CONFIG_SRCDIR([src/main/main.cpp])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/main/Makefile])
+AC_CONFIG_FILES([Makefile src/main/Makefile src/core/Makefile])
 
 AM_INIT_AUTOMAKE
+AC_PROG_RANLIB
 
 # Checks for programs.
 AC_PROG_CXX
