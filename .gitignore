@@ -24,9 +24,9 @@
 /configure
 
 # log and cache files
-**/*.log
-**/*.cache
+*.log
+*.cache
 
 # c++ build files
-**/*.o
+*.o
 /src/main/space
