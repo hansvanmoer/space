@@ -1,7 +1,11 @@
+# automake generated files
 # http://www.gnu.org/software/automake
 
-Makefile.in
+**/Makefile.in
+**/Makefile
 
+
+# autoconf generated files
 # http://www.gnu.org/software/autoconf
 
 /autom4te.cache
@@ -12,3 +16,17 @@ Makefile.in
 /install-sh
 /missing
 /stamp-h1
+
+# other autotools generated files
+/config.h
+/config.h.in
+/config.h.in~
+/configure
+
+# log and cache files
+**/*.log
+**/*.cache
+
+# c++ build files
+**/*.o
+/src/main/space
