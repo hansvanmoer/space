@@ -1,8 +1,8 @@
 # automake generated files
 # http://www.gnu.org/software/automake
 
-**/Makefile.in
-**/Makefile
+Makefile.in
+Makefile
 
 
 # autoconf generated files
@@ -21,6 +21,7 @@
 /config.h
 /config.h.in
 /config.h.in~
+/config.status
 /configure
 
 # log and cache files
@@ -29,4 +30,8 @@
 
 # c++ build files
 *.o
+*.a
 /src/main/space
+
+# Netbeans IDE configuration files
+/nbproject
