@@ -10,15 +10,21 @@
 
 #include "Metrics.h"
 
+#include <SFML/Window/Window.hpp>
+
 namespace Core{
     
     struct WindowSettings{
         Bounds<int> bounds;
         bool fullscreen;
+        
+        WindowSettings();
+        WindowSettings(const Bounds<int> &bounds_, bool fullScreen);
     };
     
     class Window{
-        
+    private:
+        sf::Window handle_;
     public:
         Window();
         ~Window();
