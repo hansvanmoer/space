@@ -49,10 +49,16 @@ namespace JSON{
         extern const int REVERSE_SOLIDUS;
 
         extern const int LITERAL_TRUE[4];
+        
+        extern const std::size_t LITERAL_TRUE_LENGTH;
 
         extern const int LITERAL_FALSE[5];
+        
+        extern const std::size_t LITERAL_FALSE_LENGTH;
 
         extern const int LITERAL_NULL[4];
+        
+        extern const std::size_t LITERAL_NULL_LENGTH;
 
         bool whitespace(int code);
 
@@ -61,6 +67,8 @@ namespace JSON{
         int escape(int code);
 
         bool number(int code);
+        
+        bool hexNumber(int code);
         
         bool invalidInString(int code);
     }

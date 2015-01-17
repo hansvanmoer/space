@@ -1,6 +1,8 @@
-
-
+#include "JSONReader.h"
 
 int main(int argCount, const char **args){
-	return 0;
+        JSON::Document<JSON::BufferedInput<> > document{JSON::BufferedInput<>{std::istringstream{"true"}}};
+        std::cout << "testing";
+        std::cout << document.rootNode().boolean();
+        return 0;
 };

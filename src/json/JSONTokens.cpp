@@ -9,6 +9,7 @@ const unsigned int NUMBER_MASK = 0x00000002;
 const unsigned int STRING_ESCAPE_MASK = 0x00000004;
 const unsigned int INVALID_STRING_MASK = 0x00000008;
 const unsigned int STRING_UNESCAPE_MASK = 0x00000010;
+const unsigned int HEX_NUMBER_MASK = 0x00000020;
 const unsigned int STRING_ESCAPE_TOKEN_MASK = 0x00FF0000;
 const unsigned int STRING_UNESCAPE_TOKEN_MASK = 0xFF000000;
 
@@ -57,17 +58,18 @@ const unsigned int tokens [128] = {
     0, //0x2C ,
     JSON_2_TOKENS(NUMBER_MASK), //0x2D - 0x2E -, .
     JSON_ESCAPE_UNESCAPE_TOKEN(0x2F), //0x2F solidus
-    JSON_8_TOKENS(NUMBER_MASK), JSON_2_TOKENS(NUMBER_MASK), //0x30 - 0x39 numbers
-    JSON_8_TOKENS(0),0,0,0,                //0x3A - 0x44
-    NUMBER_MASK,                           //0x45 E
-    JSON_16_TOKENS(0), JSON_4_TOKENS(0),0,0, //0x46 - 0x5B
+    JSON_8_TOKENS(NUMBER_MASK | HEX_NUMBER_MASK), JSON_2_TOKENS(NUMBER_MASK | HEX_NUMBER_MASK), //0x30 - 0x39 numbers
+    JSON_4_TOKENS(0),0,0,0,                //0x3A - 0x44
+    JSON_4_TOKENS(HEX_NUMBER_MASK),
+    NUMBER_MASK | HEX_NUMBER_MASK,                           //0x45 E
+    HEX_NUMBER_MASK, JSON_16_TOKENS(0), JSON_4_TOKENS(0),0, //0x46 - 0x5B
     INVALID_STRING_MASK | JSON_ESCAPE_UNESCAPE_TOKEN(0x5C), //0x5C reverse solidus
     JSON_4_TOKENS(0),                                       //0x5D - 0x60
-    0, //0x61 a
-    JSON_UNESCAPE_TOKEN(0x08), //0x62 b
-    0, 0, //0x63 - 0x64 c,d
-    NUMBER_MASK, //0x65 e
-    JSON_UNESCAPE_TOKEN(0x0C), //0x66 f
+    HEX_NUMBER_MASK, //0x61 a
+    JSON_UNESCAPE_TOKEN(0x08) | HEX_NUMBER_MASK, //0x62 b
+    HEX_NUMBER_MASK, HEX_NUMBER_MASK, //0x63 - 0x64 c,d
+    NUMBER_MASK | HEX_NUMBER_MASK, //0x65 e
+    JSON_UNESCAPE_TOKEN(0x0C) | HEX_NUMBER_MASK, //0x66 f
     0, 0, 0, 0, 0, 0, 0, //0x67 - 0x6D g - m
     JSON_UNESCAPE_TOKEN(0x0A), //0x6E n
     0, 0, 0, //0x6F - 0x71 o - q
@@ -115,9 +117,15 @@ const int JSON::Tokens::REVERSE_SOLIDUS = '\\';
 
 const int JSON::Tokens::LITERAL_TRUE[4] = {'t','r','u','e'};
 
+const std::size_t JSON::Tokens::LITERAL_TRUE_LENGTH = 4;
+
 const int JSON::Tokens::LITERAL_FALSE[5] = {'f','a','l','s','e'};
 
+const std::size_t JSON::Tokens::LITERAL_FALSE_LENGTH = 5;
+
 const int JSON::Tokens::LITERAL_NULL[4] = {'n','u','l','l'};
+
+const std::size_t JSON::Tokens::LITERAL_NULL_LENGTH = 4;
 
 bool JSON::Tokens::whitespace(int code) {
     return code > 0 && code < 0x80 && ((tokens[code] & WHITESPACE_MASK) != 0);
@@ -141,6 +149,10 @@ int JSON::Tokens::escape(int code) {
 
 bool JSON::Tokens::number(int code) {
     return code >= 0 && code < 128 && ((tokens[code] & NUMBER_MASK) != 0);
+};
+
+bool JSON::Tokens::hexNumber(int code) {
+    return code >= 0 && code < 128 && ((tokens[code] & HEX_NUMBER_MASK) != 0);
 };
 
 bool JSON::Tokens::invalidInString(int code){

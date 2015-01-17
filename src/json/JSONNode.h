@@ -68,37 +68,37 @@ namespace JSON {
         using Array = ArrayNode<JSONTraits, TypePolicy>;
     public:
 
-        Node() : TypePolicy(), TreeNodeBase<JSONTraits>() {
+        TreeNode() : TypePolicy(), TreeNodeBase<JSONTraits>() {
         };
 
-        Node(Tree<JSONTraits> *tree, Data *data) : TypePolicy(), TreeNodeBase(tree, data) {
+        TreeNode(Tree<JSONTraits> *tree, Data *data) : TypePolicy(), TreeNodeBase<JSONTraits>(tree, data) {
         };
 
-        Node(Tree<JSONTraits> *tree) : Node(tree, tree->rootNode()) {
+        TreeNode(Tree<JSONTraits> *tree) : TreeNode<JSONTraits, TypePolicy>(tree, tree->rootNode()) {
         };
 
         String string() const {
-            return TypePolicy::toString(data_);
+            return TypePolicy::getString(TreeNodeBase<JSONTraits>::data_);
         };
 
         Number number() const {
-            return TypePolicy::toNumber(data_);
+            return TypePolicy::getNumber(TreeNodeBase<JSONTraits>::data_);
         };
 
         Boolean boolean() const {
-            return TypePolicy::toBoolean(data_);
+            return TypePolicy::getBoolean(TreeNodeBase<JSONTraits>::data_);
         };
 
         bool null() const {
-            return data_->type == NodeType::NULL_VALUE;
+            return TreeNodeBase<JSONTraits>::data_->type == NodeType::NULL_VALUE;
         };
 
         Object object() const {
-            return Object{tree_, data_};
+            return Object{TreeNodeBase<JSONTraits>::tree_, TreeNodeBase<JSONTraits>::data_};
         };
 
         Array array() const {
-            return Array{tree_, data_};
+            return Array{TreeNodeBase<JSONTraits>::tree_, TreeNodeBase<JSONTraits>::data_};
         };
     };
 
@@ -110,11 +110,12 @@ namespace JSON {
         using Boolean = typename JSONTraits::Boolean;
         using Node = TreeNode<JSONTraits, TypePolicy>;
         using Array = ArrayNode<JSONTraits, TypePolicy>;
+        using Object = ObjectNode<JSONTraits, TypePolicy>;
         using FieldId = String;
     private:
 
         Data *getChildData(FieldId fieldId) {
-            Data *data = tree_->childNode(data_, fieldId);
+            Data *data = TreeNodeBase<JSONTraits>::tree_->childNode(TreeNodeBase<JSONTraits>::data_, fieldId);
             if (data) {
                 return data;
             } else {
@@ -127,7 +128,7 @@ namespace JSON {
         };
 
         Data *findChildData(FieldId fieldId) {
-            return tree_->childNode(data_, fieldId);
+            return TreeNodeBase<JSONTraits>::tree_->childNode(TreeNodeBase<JSONTraits>::data_, fieldId);
             ;
         };
 
@@ -136,35 +137,35 @@ namespace JSON {
         ObjectNode() : TypePolicy(), TreeNodeBase<JSONTraits>() {
         };
 
-        ObjectNode(Tree<JSONTraits> *tree, Data *data) : TypePolicy(data, NodeType::OBJECT), tree_(tree), data_(data) {
+        ObjectNode(Tree<JSONTraits> *tree, Data *data) : TypePolicy(data, NodeType::OBJECT), TreeNodeBase<JSONTraits>(tree, data) {
         };
 
         Node node() const{
-            return Node{tree_, data_};
+            return Node{TreeNodeBase<JSONTraits>::tree_, TreeNodeBase<JSONTraits>::data_};
         };
         
         Node getNode(FieldId fieldId) const {
-            return Node{tree_, getChildData(fieldId)};
+            return Node{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
         };
         
         Node findNode(FieldId fieldId) const {
-            return Node{tree_, findChildData(fieldId)};
+            return Node{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
         };
 
         Object getObject(FieldId fieldId) const {
-            return Object{tree_, getChildData(fieldId)};
+            return Object{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
         };
         
         Object findObject(FieldId fieldId) const {
-            return Object{tree_, findChildData(fieldId)};
+            return Object{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
         };
         
         Array getArray(FieldId fieldId) const {
-            return Node{tree_, getChildData(fieldId)};
+            return Node{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
         };
         
         Array findArray(FieldId fieldId) const {
-            return Array{tree_, findChildData(fieldId)};
+            return Array{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
         };
         
         String getString(FieldId fieldId) const {
@@ -216,7 +217,7 @@ namespace JSON {
         
         ArrayIterator() : tree_(), iterator_(){};
         
-        ArrayIterator(Tree<JSONTraits> *tree, typename std::list<Data*>::const_iterator iterator) : tree_(tree), iterator(iterator_){};
+        ArrayIterator(Tree<JSONTraits> *tree, typename std::list<Data*>::const_iterator iterator) : tree_(tree), iterator_(iterator){};
         
         Node operator*() const{
             return Node{tree_, *iterator_};
@@ -228,7 +229,7 @@ namespace JSON {
             return i;
         };
         
-        ArrayIterator<JSONTraits, TypePolicy> &operator++(int){
+        ArrayIterator<JSONTraits, TypePolicy> &operator++(){
             iterator_++;
             *this;
         };
@@ -252,24 +253,24 @@ namespace JSON {
         using Node = TreeNode<JSONTraits, TypePolicy>;
         using Iterator = ArrayIterator<JSONTraits, TypePolicy>;
         using const_iterator = Iterator;
-        using size_type = typename std::list<NodeData*>::size_type;
+        using size_type = typename std::list<Data*>::size_type;
         
         ArrayNode() : TypePolicy(), TreeNodeBase<JSONTraits>() {
         };
 
-        ArrayNode(Tree<JSONTraits> *tree, Data *data) : TypePolicy(data, NodeType::ARRAY), tree_(tree), data_(data) {
+        ArrayNode(Tree<JSONTraits> *tree, Data *data) : TypePolicy(data, NodeType::ARRAY), TreeNodeBase<JSONTraits>(tree, data) {
         };
         
         const_iterator begin() const{
-            return ArrayIterator(tree_, TypePolicy::getArrayBegin(data_));
+            return ArrayIterator<JSONTraits, TypePolicy>{TreeNodeBase<JSONTraits>::tree_, TypePolicy::getArrayBegin(TreeNodeBase<JSONTraits>::data_)};
         };
         
         const_iterator end() const{
-            return ArrayIterator(tree_, TypePolicy::getArrayEnd(data_));
+            return ArrayIterator<JSONTraits, TypePolicy>{TreeNodeBase<JSONTraits>::tree_, TypePolicy::getArrayEnd(TreeNodeBase<JSONTraits>::data_)};
         };
         
         size_type size() const{
-            return TypePolicy::getArraySize(data_);
+            return TypePolicy::getArraySize(TreeNodeBase<JSONTraits>::data_);
         };
         
     };

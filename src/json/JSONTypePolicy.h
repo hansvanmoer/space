@@ -47,10 +47,10 @@ namespace JSON{
         };
         
         Boolean getBoolean(Data *data) const{
-            if(data->type == NodeType::BOOLEAN){
+            if(data->type() == NodeType::BOOLEAN){
                 return data->booleanValue();
             }else{
-                throw TypeException(NodeType::BOOLEAN, data->type);
+                throw TypeException(NodeType::BOOLEAN, data->type());
             }
         };
         
@@ -82,7 +82,7 @@ namespace JSON{
             }
         };
         
-        typename std::list<Data*>::size_type getArraySize(Data *data) const
+        typename std::list<Data*>::size_type getArraySize(Data *data) const{
             if(data){
                 return data->arrayValue().size();
             }else{
@@ -99,9 +99,9 @@ namespace JSON{
         using Number = typename JSONTraits::Number;
         using Boolean = typename JSONTraits::Boolean;
         
-        StrictTypePolicy(){};
+        FastTypePolicy(){};
         
-        StrictTypePolicy(Data *data, NodeType expected){};
+        FastTypePolicy(Data *data, NodeType expected){};
         
         String getString(Data *data) const{
             return data->stringValue();
