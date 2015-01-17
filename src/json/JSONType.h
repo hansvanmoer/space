@@ -23,7 +23,7 @@ namespace JSON{
         using Number = double;
         using Boolean = bool;
         
-        void print(std::ostream &output, String string){
+        static void write(std::ostream &output, String string){
             for(auto i = string.begin(); i != string.end(); ++i){
                 output.put(CharTraits::to_int_type(i));
             }
@@ -39,7 +39,7 @@ namespace JSON{
         using Number = double;
         using Boolean = bool;
         
-        void print(std::ostream &output, String string){
+        static void write(std::ostream &output, String string){
             output << string;
         };
     };

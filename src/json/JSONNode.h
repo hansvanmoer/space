@@ -114,20 +114,20 @@ namespace JSON {
         using FieldId = String;
     private:
 
-        Data *getChildData(FieldId fieldId) {
+        Data *getChildData(FieldId fieldId) const {
             Data *data = TreeNodeBase<JSONTraits>::tree_->childNode(TreeNodeBase<JSONTraits>::data_, fieldId);
             if (data) {
                 return data;
             } else {
                 std::ostringstream msg;
                 msg << "unknown field: '";
-                JSONTraits::print(msg, fieldId);
+                JSONTraits::write(msg, fieldId);
                 msg << "'";
-                throw UnknownFieldException(msg.str());
+                throw JSONException(msg.str());
             }
         };
 
-        Data *findChildData(FieldId fieldId) {
+        Data *findChildData(FieldId fieldId) const{
             return TreeNodeBase<JSONTraits>::tree_->childNode(TreeNodeBase<JSONTraits>::data_, fieldId);
             ;
         };
@@ -169,35 +169,62 @@ namespace JSON {
         };
         
         String getString(FieldId fieldId) const {
-            return TypePolicy::getString(getNode(fieldId));
+            return TypePolicy::getString(getChildData(fieldId));
         };
         
         String findString(FieldId fieldId) const {
-            return TypePolicy::getString(findNode(fieldId));
+            return TypePolicy::getString(findChildData(fieldId));
         };
         
-        String getNumber(FieldId fieldId) const {
-            return TypePolicy::getNumber(getNode(fieldId));
+        String findString(FieldId fieldId, String defaultValue) const {
+            Data *data = findChildData(fieldId);
+            if(data){
+                return TypePolicy::getString(findChildData(fieldId));
+            }else{
+                return defaultValue;
+            }
         };
         
-        String findNumber(FieldId fieldId) const {
-            return TypePolicy::getNumber(findNode(fieldId));
+        Number getNumber(FieldId fieldId) const {
+            return TypePolicy::getNumber(getChildData(fieldId));
         };
         
-        String getBoolean(FieldId fieldId) const {
-            return TypePolicy::getBoolean(getNode(fieldId));
+        Number findNumber(FieldId fieldId) const {
+            return TypePolicy::getNumber(findChildData(fieldId));
         };
         
-        String findBoolean(FieldId fieldId) const {
-            return TypePolicy::getBoolean(findNode(fieldId));
+        Number findNumber(FieldId fieldId, Number defaultValue) const {
+            Data *data = findChildData(fieldId);
+            if(data){
+                return TypePolicy::getNumber(data);
+            }else{
+                return defaultValue;
+            }
+        };
+        
+        Boolean getBoolean(FieldId fieldId) const {
+            return TypePolicy::getBoolean(getChildData(fieldId));
+        };
+        
+        Boolean findBoolean(FieldId fieldId) const {
+            return TypePolicy::getBoolean(findChildData(fieldId));
+        };
+        
+        Boolean findBoolean(FieldId fieldId, Boolean defaultValue) const {
+            Data *data = findChildData(fieldId);
+            if(data){
+                return TypePolicy::getBoolean(data);
+            }else{
+                return defaultValue;
+            }
         };
         
         void getNull(FieldId fieldId) const{
-            TypePolicy::getNull(getNode(fieldId));
+            TypePolicy::getNull(getChildData(fieldId));
         };
         
         bool findNull(FieldId fieldId) const{
-            return TypePolicy::getNull(findNode(fieldId));
+            return TypePolicy::getNull(findChildData(fieldId));
         };
     };
     
@@ -213,24 +240,57 @@ namespace JSON {
     private:
         Tree<JSONTraits> *tree_;
         typename std::list<Data*>::const_iterator iterator_;
+        Node *node_;
     public:
         
-        ArrayIterator() : tree_(), iterator_(){};
+        ArrayIterator() : tree_(), iterator_(), node_(){};
         
-        ArrayIterator(Tree<JSONTraits> *tree, typename std::list<Data*>::const_iterator iterator) : tree_(tree), iterator_(iterator){};
+        ArrayIterator(Tree<JSONTraits> *tree, typename std::list<Data*>::const_iterator iterator) : tree_(tree), iterator_(iterator), node_(new Node{tree_, *iterator}){};
         
-        Node operator*() const{
-            return Node{tree_, *iterator_};
+        ArrayIterator(const ArrayIterator<JSONTraits, TypePolicy> &i) : tree_(i.tree_), iterator_(i.iterator_), node_(){
+            if(i.node_){
+                node_ = new Node{tree_, *iterator_};
+            }
+        };
+        
+        ArrayIterator<JSONTraits, TypePolicy> &operator=(const ArrayIterator<JSONTraits, TypePolicy> &i){
+            if(&i != this){
+                tree_ = i.tree_;
+                iterator_ = i.iterator_;
+                delete node_;
+                if(i.node_){
+                    node_ = new Node{tree_, iterator_};
+                }else{
+                    node_ = nullptr;
+                }
+            }
+            return *this;
+        };
+        
+        ~ArrayIterator(){
+            delete node_;
+        };
+        
+        const Node &operator*() const{
+            return *node_;
+        };
+        
+        const Node *operator->() const{
+            return node_;
         };
         
         ArrayIterator<JSONTraits, TypePolicy> operator++(int){
             ArrayIterator<JSONTraits, TypePolicy> i{*this};
             iterator_++;
+            delete node_;
+            node_ = new Node{tree_, *iterator_};
             return i;
         };
         
         ArrayIterator<JSONTraits, TypePolicy> &operator++(){
             iterator_++;
+            delete node_;
+            node_ = new Node{tree_, *iterator_};
             *this;
         };
         

@@ -91,8 +91,8 @@ namespace JSON {
             buffer >> result;
             return result;
         };
-
-        String parseString() {
+        
+        String parseStringLiteral() {
             OutputBuffer buffer;
             int c = next();
             while (!CharTraits::eq(c, Tokens::STRING_DELIMITER)) {
@@ -106,14 +106,18 @@ namespace JSON {
                             throw ParseException("invalid escape character");
                         }
                     }
-                } else {
-                    buffer.put(c);
                 }
+                buffer.put(c);
+                c = next();
             }
             ++current_;
             return buffer.str();
         };
 
+        void parseString(){
+            listener_.string(parseStringLiteral());
+        };
+        
         bool testLiteral(const int *literal, std::size_t length) {
             Range buffer = current_;
             for (std::size_t i = 0; i < length; ++i, ++literal, ++buffer) {
@@ -178,11 +182,20 @@ namespace JSON {
         };
 
         void parseFieldName() {
-            skipWhitespaceAndNext();
-            listener_.field(parseString());
-            skipWhitespaceAndNext();
-            if (*current_ == Tokens::KEY_VALUE_SEPARATOR) {
-                ++current_;
+            if(current_){
+                if((*current_) == Tokens::STRING_DELIMITER){
+                    listener_.field(parseStringLiteral());
+                    skipWhitespaceAndNext();
+                    if (*current_ == Tokens::KEY_VALUE_SEPARATOR) {
+                        ++current_;
+                    }else{
+                        throw ParseException("unexpected token: expected key/value separator");
+                    }
+                }else{
+                    throw ParseException("unexpected token: expected string delimiter");
+                }
+            }else{
+                throw ParseException("unexpected end of input: expected field name");
             }
         };
 
@@ -195,6 +208,7 @@ namespace JSON {
                 listener_.objectEnd();
             } else {
                 while (true) {
+                    skipWhitespaceAndNext();
                     parseFieldName();
                     parseBranch();
                     skipWhitespaceAndNext();
@@ -202,7 +216,7 @@ namespace JSON {
                     if (CharTraits::eq(c, Tokens::ELEMENT_SEPARATOR)) {
                         next();
                         skipWhitespaceAndNext();
-                    } else if (CharTraits::eq(c, Tokens::ARRAY_END)) {
+                    } else if (CharTraits::eq(c, Tokens::OBJECT_END)) {
                         ++current_;
                         listener_.objectEnd();
                         return;

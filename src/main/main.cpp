@@ -1,8 +1,10 @@
 #include "JSONReader.h"
 
 int main(int argCount, const char **args){
-        JSON::Document<JSON::BufferedInput<> > document{JSON::BufferedInput<>{std::istringstream{"true"}}};
-        std::cout << "testing";
-        std::cout << document.rootNode().boolean();
-        return 0;
+    typedef JSON::Document<JSON::BufferedInput<> > Document;
+    typedef typename Document::Object Object;
+    
+    Document document{JSON::BufferedInput<>{std::istringstream{"{\"field1\" : true , \"field2\":\"test\", \"field3\":{\"field4\":true}}"}}};
+    std::cout << document.rootNode().object().getObject("field3").getBoolean("field4");
+    return 0;
 };

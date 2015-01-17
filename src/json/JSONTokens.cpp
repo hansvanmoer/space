@@ -91,7 +91,7 @@ const int JSON::Tokens::ARRAY_END = ']';
 
 const int JSON::Tokens::ELEMENT_SEPARATOR = ',';
 
-const int JSON::Tokens::KEY_VALUE_SEPARATOR = '=';
+const int JSON::Tokens::KEY_VALUE_SEPARATOR = ':';
 
 const int JSON::Tokens::STRING_DELIMITER = '\"';
 

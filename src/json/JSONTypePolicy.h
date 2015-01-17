@@ -25,24 +25,24 @@ namespace JSON{
         StrictTypePolicy(){};
         
         StrictTypePolicy(Data *data, NodeType expected){
-            if(data && data->type != expected){
-                throw TypeException(expected, data->type);
+            if(data && data->type() != expected){
+                throw TypeException(expected, data->type());
             }
         };
         
         String getString(Data *data) const{
-            if(data->type == NodeType::STRING){
+            if(data->type() == NodeType::STRING){
                 return data->stringValue();
             }else{
-                throw TypeException(NodeType::STRING, data->type);
+                throw TypeException(NodeType::STRING, data->type());
             }
         };
         
         Number getNumber(Data *data) const{
-            if(data->type == NodeType::NUMBER){
+            if(data->type() == NodeType::NUMBER){
                 return data->numberValue();
             }else{
-                throw TypeException(NodeType::NUMBER, data->type);
+                throw TypeException(NodeType::NUMBER, data->type());
             }
         };
         
@@ -55,10 +55,10 @@ namespace JSON{
         };
         
         bool getNull(Data *data) const{
-            if(data->type == NodeType::NULL_VALUE){
+            if(data->type() == NodeType::NULL_VALUE){
                 return true;
             }else{
-                throw TypeException(NodeType::NULL_VALUE, data->type);
+                throw TypeException(NodeType::NULL_VALUE, data->type());
             }
         };
         
