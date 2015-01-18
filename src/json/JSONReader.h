@@ -18,7 +18,7 @@
 
 namespace JSON{
     
-    class JSONReaderException : public JSONException{
+    class ReaderException : public JSONException{
     private:
         int line_;
         int column_;
@@ -28,9 +28,9 @@ namespace JSON{
         
         static const int NO_COLUMN;
         
-        JSONReaderException(std::string message);
+        ReaderException(std::string message);
         
-        JSONReaderException(std::string message, int line, int column);
+        ReaderException(std::string message, int line, int column);
         
         int line() const;
         
@@ -157,7 +157,7 @@ namespace JSON{
         Tree<JSONTraits> *tree_;
         Input &input_;
         
-        JSONReaderException createException(Range begin, Range errorLocation, std::string message){
+        ReaderException createException(Range begin, Range errorLocation, std::string message){
             int line = 0;
             int column = 0;
             Range range{begin.begin(), errorLocation.begin()};
@@ -174,7 +174,7 @@ namespace JSON{
                 }
                 ++range;
             }
-            return JSONReaderException{message, line, column};
+            return ReaderException{message, line, column};
         };
         
         void parse(){
@@ -189,7 +189,7 @@ namespace JSON{
                 }
             }catch(JSONException &e){
                 delete tree_;
-                throw JSONReaderException(e.what());
+                throw ReaderException(e.what());
             }catch(...){
                 delete tree_;
                 throw;
