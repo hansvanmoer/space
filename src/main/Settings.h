@@ -44,9 +44,15 @@ namespace Game{
     
     ApplicationSettings loadSettings();
     
-    void loadSettings(ApplicationSettings &setting);
+    void loadApplicationSettings(ApplicationSettings &setting);
     
-    void saveSettings(const ApplicationSettings &settings);
+    ApplicationSettings loadApplicationSettings();
+    
+    void loadDefaultApplicationSettings(ApplicationSettings &settings);
+    
+    ApplicationSettings loadDefaultApplicationSettings();
+    
+    void saveApplicationSettings(const ApplicationSettings &settings);
     
 }
 

@@ -1,6 +1,7 @@
 #include "Settings.h"
 #include "JSONReader.h"
 #include "JSONWriter.h"
+#include "Path.h"
 #include <fstream>
 using namespace Game;
 
@@ -18,12 +19,23 @@ void validateVideoSettings(const VideoSettings &settings){
     }
 }
 
+void validateWindowSettings(const WindowSettings &settings){
+    if(settings.windowSize.width < 0){
+        throw SettingsException("window width should be > 0");
+    }
+    if(settings.windowSize.height < 0){
+        throw SettingsException("window height should be > 0");
+    }
+}
+
 void readVideoSettings(Object node, VideoSettings &settings){
     settings.antialiasingLevel=static_cast<int>(node.getNumber("antialisingLevel"));
 };
 
 void writeVideoSettings(Writer &writer, const VideoSettings &settings){
+    writer.beginObject();
     writer.beginField("antialisingLevel").writeNumber(settings.antialiasingLevel).endField();
+    writer.endObject();
 };
 
 void validateAudioSettings(const AudioSettings &settings){
@@ -49,8 +61,107 @@ void readAudioSettings(Object node, AudioSettings &settings){
 };
 
 void writeAudioSettings(Writer &writer, const AudioSettings &settings){
+    writer.beginObject();
     writer.beginField("ambientVolume").writeNumber(settings.ambientVolume).endField();
     writer.beginField("effectVolume").writeNumber(settings.effectVolume).endField();
     writer.beginField("masterVolume").writeNumber(settings.masterVolume).endField();
     writer.beginField("uiVolume").writeNumber(settings.uiVolume).endField();
+    writer.endObject();
 };
+
+void readWindowSettings(Object node, WindowSettings &settings){
+    settings.windowSize.width=static_cast<int>(node.getNumber("windowWidth"));
+    settings.windowSize.height=static_cast<int>(node.getNumber("windowHeight"));
+    settings.fullScreen=node.getBoolean("fullScreen");
+};
+
+void writeWindowSettings(Writer &writer, const WindowSettings &settings){
+    writer.beginObject();
+    writer.beginField("windowWidth").writeNumber(settings.windowSize.width).endField();
+    writer.beginField("windowHeight").writeNumber(settings.windowSize.height).endField();
+    writer.beginField("fullScreen").writeNumber(settings.fullScreen).endField();
+    writer.endObject();
+};
+
+void validateApplicationSettings(const ApplicationSettings &settings){
+    validateAudioSettings(settings.audioSettings);
+    validateVideoSettings(settings.videoSettings);
+    validateWindowSettings(settings.windowSettings);
+}
+
+void readApplicationSettings(Object node, ApplicationSettings &settings){
+    readWindowSettings(node.getObject("windowSettings"), settings.windowSettings);
+    readAudioSettings(node.getObject("audioSettings"), settings.audioSettings);
+    readVideoSettings(node.getObject("videoSettings"), settings.videoSettings);
+};
+
+void writeApplicationSettings(Writer &writer, const ApplicationSettings &settings){
+    writer.beginField("windowSettings");
+    writeWindowSettings(writer, settings.windowSettings);
+    writer.endField();
+    writer.beginField("audioSettings");
+    writeAudioSettings(writer, settings.audioSettings);
+    writer.endField();
+    writer.beginField("videoSettings");
+    writeVideoSettings(writer, settings.videoSettings);
+    writer.endField();
+}
+
+Path createSettingsPath(){
+    return Path{Path::runtimeDataPath(),"applicationSettings"};
+}
+
+void Game::loadApplicationSettings(ApplicationSettings &settings){
+    Path settingsPath{createSettingsPath()};
+    if(settingsPath.fileExists()){
+        std::ifstream input;
+        settingsPath.openFile(input);
+        Document document{JSON::BufferedInput<>{input}};
+        ApplicationSettings temp;
+        readApplicationSettings(document.rootNode().object(), temp);
+        if(input.bad()){
+            throw SettingsException("file input error");
+        }
+        validateApplicationSettings(temp);
+        input.close();
+        settings = temp;
+    }else{
+        throw SettingsException("no settings file found");
+    }
+}
+
+ApplicationSettings Game::loadApplicationSettings(){
+    ApplicationSettings settings;
+    loadApplicationSettings(settings);
+    return settings;
+}
+
+void Game::saveApplicationSettings(const ApplicationSettings &settings){
+    validateApplicationSettings(settings);
+    Path settingsPath{createSettingsPath()};
+    settingsPath.createFile();
+    std::ofstream output;
+    settingsPath.openFile(output);
+    Writer writer{output};
+    writeApplicationSettings(writer, settings);
+    if(!output.good()){
+        throw SettingsException("file output error");
+    }
+}
+
+void Game::loadDefaultApplicationSettings(ApplicationSettings &settings){
+    settings.audioSettings.ambientVolume=1.f;
+    settings.audioSettings.effectVolume=1.f;
+    settings.audioSettings.masterVolume=1.f;
+    settings.audioSettings.uiVolume=1.f;
+    settings.videoSettings.antialiasingLevel=4;
+    settings.windowSettings.fullScreen=false;
+    settings.windowSettings.windowSize.width=800;
+    settings.windowSettings.windowSize.height=600;
+}
+
+ApplicationSettings Game::loadDefaultApplicationSettings(){
+    ApplicationSettings settings;
+    loadDefaultApplicationSettings(settings);
+    return settings;
+}
