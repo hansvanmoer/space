@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <pwd.h>
 #endif
 
 using namespace Game;
@@ -27,6 +28,7 @@ std::string concatenate(const std::string& parent, const std::string& child) {
     std::ostringstream buffer;
     buffer << parent;
     buffer.put(SEPARATOR);
+    return buffer.str();
 }
 
 Path::Path() : data_() {
@@ -116,3 +118,32 @@ bool Path::openFile(std::ofstream &output) const{
 }
 
 PathException::PathException(std::string message) : std::runtime_error(message){};
+
+Path Path::applicationPath_{};
+
+std::string createHomeFolder(){
+#ifdef OS_UNIX_LIKE    
+    struct passwd *pw = getpwuid(getuid());
+    return std::string{pw->pw_dir};
+#endif
+#ifdef OS_WINDOWS
+    //TODO
+#endif
+}
+
+Path Path::applicationPath(){
+    return applicationPath_;
+};
+
+void Path::applicationPath(Path path){
+    applicationPath_ = path;
+}
+
+Path Path::dataPath(){
+    return Path{applicationPath_, "data"};
+}
+
+Path Path::runtimeDataPath(){
+    static Path path{createHomeFolder(), ".spacegame"};
+    return path;
+}

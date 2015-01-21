@@ -35,9 +35,20 @@ namespace Game{
         bool openFile(std::ofstream &output) const;
         
         bool openFile(std::ifstream &input) const;
+        
+        static Path applicationPath();
+        
+        static void applicationPath(Path path);
+        
+        static Path dataPath();
+        
+        static Path runtimeDataPath();
     private:
         std::string data_;
+        
+        static Path applicationPath_;
     };
+    
     
     class PathException : public std::runtime_error{
     public:
