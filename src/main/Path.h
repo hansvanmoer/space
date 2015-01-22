@@ -20,7 +20,9 @@ namespace Game{
         Path(std::string data);
         Path(Path parent, std::string data);
         
-        Path child(std::string name);
+        Path parent() const;
+        
+        Path child(std::string name) const;
         
         bool fileExists() const;
         

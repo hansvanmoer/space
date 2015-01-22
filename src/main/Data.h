@@ -20,15 +20,15 @@ namespace Game{
         static const std::string NAME;
         
         Path applicationPath();
-        
-        void applicationPath(Path path);
-        
+                
         Path dataPath();
         
         Path runtimeDataPath();
         
     private:
         Path applicationPath_;
+        Path dataPath_;
+        Path runtimeDataPath_;
         
         DataSystem(Path applicationPath);
         

@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "System.h"
 
+#include <iostream>
 #include <sstream>
 
 #ifdef OS_UNIX_LIKE
@@ -28,6 +29,7 @@ std::string concatenate(const std::string& parent, const std::string& child) {
     std::ostringstream buffer;
     buffer << parent;
     buffer.put(SEPARATOR);
+    buffer << child;
     return buffer.str();
 }
 
@@ -40,7 +42,16 @@ Path::Path(std::string data) : data_(data) {
 Path::Path(Path parent, std::string name) : data_(concatenate(parent.data_, name)) {
 };
 
-Path Path::child(std::string name) {
+Path Path::parent() const{
+    std::string::size_type pos = data_.find_last_of(SEPARATOR);
+    if(pos == std::string::npos){
+        return Path{};
+    }else{
+        return Path{data_.substr(0,pos)};
+    }
+};
+
+Path Path::child(std::string name) const{
     return Path{data_, name};
 }
 
@@ -94,6 +105,7 @@ bool Path::createFolder() const{
     }else if(errno == EEXIST){
         return false;
     }else{
+        std::cout << errno;
         throw PathException("unable to create folder");
     }
 #endif

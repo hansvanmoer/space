@@ -12,31 +12,32 @@ using namespace Game;
 
 const std::string DataSystem::NAME{"data"};
 
-std::string createHomeFolder(){
-#ifdef OS_UNIX_LIKE    
+Path getHomeFolder(){
+#ifdef OS_UNIX_LIKE
     struct passwd *pw = getpwuid(getuid());
-    return std::string{pw->pw_dir};
+    return Path{pw->pw_dir};
 #endif
 #ifdef OS_WINDOWS
     //TODO
 #endif
 }
 
-DataSystem::DataSystem(Path applicationPath) : applicationPath_(applicationPath){}
+DataSystem::DataSystem(Path applicationPath) : 
+        applicationPath_(applicationPath), 
+        dataPath_(applicationPath, "data"),
+        runtimeDataPath_(getHomeFolder(), ".spacegame"){
+    dataPath_.createFolder();
+    runtimeDataPath_.createFolder();
+}
 
 Path DataSystem::applicationPath(){
     return applicationPath_;
 };
 
-void DataSystem::applicationPath(Path path){
-    applicationPath_ = path;
-}
-
 Path DataSystem::dataPath(){
-    return Path{applicationPath_, "data"};
+    return dataPath_;
 }
 
 Path DataSystem::runtimeDataPath(){
-    static Path path{createHomeFolder(), ".spacegame"};
-    return path;
+    return runtimeDataPath_;
 }

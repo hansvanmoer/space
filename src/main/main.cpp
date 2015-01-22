@@ -9,7 +9,8 @@ using namespace Game;
 bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;
     try{
-        ApplicationSystem<DataSystem>::initialize(std::string{args[0]});
+        Path executablePath{args[0]};
+        ApplicationSystem<DataSystem>::initialize(executablePath.parent());
         ApplicationSystem<SettingsSystem>::initialize();
         std::cout << "all subsystems started" << std::endl;
     }catch(ApplicationException &e){
@@ -43,6 +44,12 @@ int main(int argCount, const char **args){
     }catch(SettingsException &e){
         std::cout << "unable to load application settings: " << e.what() << std::endl;
         std::cout << "loading defaults" << std::endl;
+    }
+    
+    try{
+        ApplicationSystem<SettingsSystem>::instance().save();
+    }catch(SettingsException &e){
+        std::cout << "unable to save application settings: " << e.what() << std::endl;
     }
     shutdownSubSystems();
     return 0;
