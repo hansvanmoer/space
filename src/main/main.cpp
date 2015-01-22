@@ -10,6 +10,9 @@ bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;
     try{
         Path executablePath{args[0]};
+#ifdef RUNTIME_DATA_PATH
+        executablePath = executablePath.parent().parent();
+#endif
         ApplicationSystem<DataSystem>::initialize(executablePath.parent());
         ApplicationSystem<SettingsSystem>::initialize();
         std::cout << "all subsystems started" << std::endl;
