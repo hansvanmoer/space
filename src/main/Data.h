@@ -8,6 +8,9 @@
 #ifndef DATA_H
 #define	DATA_H
 
+#include "Application.h"
+#include "Path.h"
+
 #include <string>
 
 namespace Game{
@@ -15,6 +18,21 @@ namespace Game{
     class DataSystem{
     public:
         static const std::string NAME;
+        
+        Path applicationPath();
+        
+        void applicationPath(Path path);
+        
+        Path dataPath();
+        
+        Path runtimeDataPath();
+        
+    private:
+        Path applicationPath_;
+        
+        DataSystem(Path applicationPath);
+        
+        friend class ApplicationSystem<DataSystem>;
     };
     
 }

@@ -2,7 +2,9 @@
 #include "JSONReader.h"
 #include "JSONWriter.h"
 #include "Path.h"
+#include "Data.h"
 #include <fstream>
+
 using namespace Game;
 
 using Document = JSON::Document<JSON::BufferedInput<> >;
@@ -116,7 +118,7 @@ void writeApplicationSettings(Writer &writer, const ApplicationSettings &setting
 }
 
 Path createSettingsPath(){
-    return Path{Path::runtimeDataPath(),"applicationSettings"};
+    return Path{ApplicationSystem<DataSystem>::instance().runtimeDataPath(),"applicationSettings"};
 }
 
 const std::string SettingsSystem::NAME{"settings"};

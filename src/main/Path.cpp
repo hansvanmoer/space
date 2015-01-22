@@ -118,32 +118,3 @@ bool Path::openFile(std::ofstream &output) const{
 }
 
 PathException::PathException(std::string message) : std::runtime_error(message){};
-
-Path Path::applicationPath_{};
-
-std::string createHomeFolder(){
-#ifdef OS_UNIX_LIKE    
-    struct passwd *pw = getpwuid(getuid());
-    return std::string{pw->pw_dir};
-#endif
-#ifdef OS_WINDOWS
-    //TODO
-#endif
-}
-
-Path Path::applicationPath(){
-    return applicationPath_;
-};
-
-void Path::applicationPath(Path path){
-    applicationPath_ = path;
-}
-
-Path Path::dataPath(){
-    return Path{applicationPath_, "data"};
-}
-
-Path Path::runtimeDataPath(){
-    static Path path{createHomeFolder(), ".spacegame"};
-    return path;
-}

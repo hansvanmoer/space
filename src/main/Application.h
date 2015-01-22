@@ -29,11 +29,11 @@ namespace Game{
             }
         };
         
-        static void initialize(){
+        template<typename... T> static void initialize(T... args){
             if(instance_){
                 throw ApplicationException(std::string{"subsystem already initialized: "}+System::NAME);
             }else{
-                instance_ = new System{};
+                instance_ = new System{args...};
             }
         };
         

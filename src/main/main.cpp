@@ -6,10 +6,10 @@
 
 using namespace Game;
 
-bool startSubSystems(){
+bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;
     try{
-        ApplicationSystem<DataSystem>::initialize();
+        ApplicationSystem<DataSystem>::initialize(std::string{args[0]});
         ApplicationSystem<SettingsSystem>::initialize();
         std::cout << "all subsystems started" << std::endl;
     }catch(ApplicationException &e){
@@ -37,7 +37,7 @@ void shutdownSubSystems(){
 
 
 int main(int argCount, const char **args){
-    startSubSystems();
+    startSubSystems(argCount, args);
     shutdownSubSystems();
     return 0;
 };
