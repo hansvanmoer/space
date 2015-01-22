@@ -32,12 +32,17 @@ namespace JSON{
         void writeEscapedString(String value){
             output_.put(Tokens::STRING_DELIMITER);
             for(auto i = value.begin(); i != value.end(); ++i){
-                output_.put(Tokens::escape(*i));
+                int escaped = Tokens::escape(*i);
+                if(escaped == 0){
+                    output_.put(*i);
+                }else{
+                    output_.put(escaped);
+                }
             }
             output_.put(Tokens::STRING_DELIMITER);
         };
         
-        void writeTokens(int *tokens, int length){
+        void writeTokens(const int *tokens, int length){
             for(int i = 0;i < length; ++i, ++tokens){
                 output_.put(*tokens);
             }

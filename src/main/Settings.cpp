@@ -89,7 +89,7 @@ void writeWindowSettings(Writer &writer, const WindowSettings &settings){
     writer.beginObject();
     writer.beginField("windowWidth").writeNumber(settings.windowSize.width).endField();
     writer.beginField("windowHeight").writeNumber(settings.windowSize.height).endField();
-    writer.beginField("fullScreen").writeNumber(settings.fullScreen).endField();
+    writer.beginField("fullScreen").writeBoolean(settings.fullScreen).endField();
     writer.endObject();
 };
 
@@ -164,7 +164,10 @@ void SettingsSystem::save() const{
         std::ofstream output;
         settingsPath.openFile(output);
         Writer writer{output};
+        writer.beginObject();
         writeApplicationSettings(writer, settings);
+        writer.endObject();
+        output.flush();
         if(!output.good()){
             throw SettingsException("file output error");
         }
