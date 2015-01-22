@@ -9,19 +9,25 @@
 #define	CORE_SETTINGS_H
 
 #include "Metrics.h"
+#include "Application.h"
 
 #include <string>
 #include <stdexcept>
+#include <mutex>
 
 namespace Game{
     
     struct VideoSettings{
         int antialiasingLevel;
+        
+        VideoSettings();
     };
     
     struct WindowSettings{
         Core::Size<int> windowSize;
         bool fullScreen;
+        
+        WindowSettings();
     };
     
     struct AudioSettings{
@@ -29,30 +35,48 @@ namespace Game{
         float ambientVolume;
         float effectVolume;
         float uiVolume;
+        
+        AudioSettings();
     };
     
     struct ApplicationSettings{
         VideoSettings videoSettings;
         WindowSettings windowSettings;
         AudioSettings audioSettings;
+        
+        ApplicationSettings();
     };
     
     class SettingsException : public std::runtime_error{
     public:
         SettingsException(std::string message);
     };
-    
-    ApplicationSettings loadSettings();
-    
-    void loadApplicationSettings(ApplicationSettings &setting);
-    
-    ApplicationSettings loadApplicationSettings();
-    
-    void loadDefaultApplicationSettings(ApplicationSettings &settings);
-    
-    ApplicationSettings loadDefaultApplicationSettings();
-    
-    void saveApplicationSettings(const ApplicationSettings &settings);
+        
+    class SettingsSystem{
+    public:
+        
+        static const std::string NAME;
+        
+        static ApplicationSettings defaultApplicationSettings();
+        
+        ApplicationSettings applicationSettings() const;
+        
+        void applicationSettings(const ApplicationSettings &settings);
+        
+        void load();
+        
+        void save() const;
+        
+        void reset();
+    private:
+        ApplicationSettings applicationSettings_;
+        mutable std::mutex dataMutex_;
+        mutable std::mutex fileMutex_;
+        
+        friend class ApplicationSystem<SettingsSystem>;
+        
+        SettingsSystem();
+    };
     
 }
 

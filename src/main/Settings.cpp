@@ -10,8 +10,16 @@ using Object = typename Document::Object;
 
 using Writer = JSON::MinifiedWriter<>;
 
-SettingsException::SettingsException(std::string message) : std::runtime_error(message){}
+SettingsException::SettingsException(std::string message) : std::runtime_error(message){
+}
 
+VideoSettings::VideoSettings() : antialiasingLevel(4) {}
+
+AudioSettings::AudioSettings() : masterVolume(1.f), ambientVolume(1.f),effectVolume(1.f), uiVolume(1.f){};
+
+WindowSettings::WindowSettings() : windowSize{800,600}, fullScreen(false){};
+
+ApplicationSettings::ApplicationSettings() : videoSettings(), audioSettings(), windowSettings(){};
 
 void validateVideoSettings(const VideoSettings &settings){
     if(settings.antialiasingLevel < 0 || settings.antialiasingLevel > 4){
@@ -111,57 +119,77 @@ Path createSettingsPath(){
     return Path{Path::runtimeDataPath(),"applicationSettings"};
 }
 
-void Game::loadApplicationSettings(ApplicationSettings &settings){
-    Path settingsPath{createSettingsPath()};
-    if(settingsPath.fileExists()){
-        std::ifstream input;
-        settingsPath.openFile(input);
-        Document document{JSON::BufferedInput<>{input}};
-        ApplicationSettings temp;
-        readApplicationSettings(document.rootNode().object(), temp);
-        if(input.bad()){
-            throw SettingsException("file input error");
+const std::string SettingsSystem::NAME{"settings"};
+
+SettingsSystem::SettingsSystem() : applicationSettings_(), dataMutex_(), fileMutex_(){
+    
+}
+
+void SettingsSystem::load(){
+    std::lock_guard<std::mutex> lock_{fileMutex_};
+    try{
+        Path settingsPath{createSettingsPath()};
+        if(settingsPath.fileExists()){
+            std::ifstream input;
+            settingsPath.openFile(input);
+            Document document{JSON::BufferedInput<>{input}};
+            ApplicationSettings settings;
+            readApplicationSettings(document.rootNode().object(), settings);
+            if(input.bad()){
+                throw SettingsException("file input error");
+            }
+            validateApplicationSettings(settings);
+            input.close();
+            applicationSettings(settings);
+        }else{
+            throw SettingsException("no settings file found");
         }
-        validateApplicationSettings(temp);
-        input.close();
-        settings = temp;
-    }else{
-        throw SettingsException("no settings file found");
+        
+    }catch(JSON::JSONException &e){
+        throw SettingsException(e.what());
+    }catch(PathException &e){
+        throw SettingsException(e.what());
     }
 }
 
-ApplicationSettings Game::loadApplicationSettings(){
-    ApplicationSettings settings;
-    loadApplicationSettings(settings);
-    return settings;
+void SettingsSystem::save() const{
+    std::lock_guard<std::mutex> lock_{fileMutex_};
+    applicationSettings();
+    ApplicationSettings settings;//{applicationSettings()};
+    try{
+        Path settingsPath{createSettingsPath()};
+        settingsPath.createFile();
+        std::ofstream output;
+        settingsPath.openFile(output);
+        Writer writer{output};
+        writeApplicationSettings(writer, settings);
+        if(!output.good()){
+            throw SettingsException("file output error");
+        }
+    }catch(JSON::JSONException &e){
+        throw SettingsException(e.what());
+    }catch(PathException &e){
+        throw SettingsException(e.what());
+    }
 }
 
-void Game::saveApplicationSettings(const ApplicationSettings &settings){
+ApplicationSettings SettingsSystem::defaultApplicationSettings(){
+    return ApplicationSettings{};
+}
+
+void SettingsSystem::reset(){
+    applicationSettings(defaultApplicationSettings());
+}
+
+void SettingsSystem::applicationSettings(const ApplicationSettings& settings){
     validateApplicationSettings(settings);
-    Path settingsPath{createSettingsPath()};
-    settingsPath.createFile();
-    std::ofstream output;
-    settingsPath.openFile(output);
-    Writer writer{output};
-    writeApplicationSettings(writer, settings);
-    if(!output.good()){
-        throw SettingsException("file output error");
+    {
+        std::lock_guard<std::mutex> lock_{dataMutex_};
+        applicationSettings_ = settings;
     }
 }
 
-void Game::loadDefaultApplicationSettings(ApplicationSettings &settings){
-    settings.audioSettings.ambientVolume=1.f;
-    settings.audioSettings.effectVolume=1.f;
-    settings.audioSettings.masterVolume=1.f;
-    settings.audioSettings.uiVolume=1.f;
-    settings.videoSettings.antialiasingLevel=4;
-    settings.windowSettings.fullScreen=false;
-    settings.windowSettings.windowSize.width=800;
-    settings.windowSettings.windowSize.height=600;
-}
-
-ApplicationSettings Game::loadDefaultApplicationSettings(){
-    ApplicationSettings settings;
-    loadDefaultApplicationSettings(settings);
-    return settings;
+ApplicationSettings SettingsSystem::applicationSettings() const{
+    std::lock_guard<std::mutex> lock_{dataMutex_};
+    return applicationSettings_;
 }
