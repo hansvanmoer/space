@@ -38,6 +38,12 @@ void shutdownSubSystems(){
 
 int main(int argCount, const char **args){
     startSubSystems(argCount, args);
+    try{
+        ApplicationSystem<SettingsSystem>::instance().load();
+    }catch(SettingsException &e){
+        std::cout << "unable to load application settings: " << e.what() << std::endl;
+        std::cout << "loading defaults" << std::endl;
+    }
     shutdownSubSystems();
     return 0;
 };
