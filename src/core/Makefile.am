@@ -3,4 +3,4 @@
 #
 
 noinst_LIBRARIES=libcore.a
-libcore_a_SOURCES=Window.cpp
+libcore_a_SOURCES=Temp.cpp
