@@ -2,11 +2,15 @@
 #include "Data.h"
 #include "Settings.h"
 #include "Window.h"
+#include "Path.h"
+#include "Module.h"
 
 #include <iostream>
+#include <map>
 
 using namespace Game;
 using Core::Path;
+using Core::Language;
 
 bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;
@@ -21,6 +25,22 @@ bool startSubSystems(int argCount, const char **args){
     }catch(ApplicationException &e){
         std::cout << "a subsystem did not properly start: " << e.what() << std::endl;
         std::cout << "closing down application" << std::endl;
+    }
+}
+
+void loadModule(){
+    Path modulesPath{ApplicationSystem<DataSystem>::instance().dataPath().child("module")};
+    try{
+        Path modulePath{modulesPath.child("default")};
+        std::cout << "loading module from path " << modulePath << std::endl;
+        Module module{modulePath};
+        const Module::LanguageMap &languages = module.languages();
+        for(auto i = languages.begin(); i != languages.end(); ++i){
+            std::cout << "available language " << i->second->id() << std::endl;
+        }
+    }catch(ModuleException &e){
+        std::cout << "unable to load module" << std::endl << e.what() << std::endl;
+        throw;
     }
 }
 
@@ -68,7 +88,8 @@ int main(int argCount, const char **args){
         std::cout << "unable to load application settings: " << e.what() << std::endl;
         std::cout << "loading defaults" << std::endl;
     }
-    startEventLoop();
+    loadModule();
+    //startEventLoop();
     try{
         ApplicationSystem<SettingsSystem>::instance().save();
     }catch(SettingsException &e){

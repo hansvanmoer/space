@@ -1,0 +1,21 @@
+[
+    {
+        "id" : "en",
+        "locale" : {
+            "windows" : "en-US",
+            "posix" : "en_US.UTF8"
+        }
+    },
+    {
+        "id" : "en_us",
+        "parent" : "en"
+    },
+    {
+        "id" : "en_gb",
+        "parent" : "en",
+        "locale" : {
+            "windows" : "en-GB",
+            "posix" : "en_GB.UTF8"
+        }
+    }
+]

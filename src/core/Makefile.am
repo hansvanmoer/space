@@ -3,5 +3,5 @@
 #
 
 noinst_LIBRARIES=libcore.a
-libcore_a_SOURCES=Path.cpp Language.cpp
+libcore_a_SOURCES=Path.cpp Language.cpp Resource.cpp
 libcore_a_CPPFLAGS=-std=c++11

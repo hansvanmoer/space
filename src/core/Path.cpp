@@ -117,4 +117,8 @@ std::string Path::data() const{
     return data_;
 }
 
+std::ostream &operator<<(std::ostream &output, const Core::Path &path){
+    return output << path.data();
+};
+
 PathException::PathException(std::string message) : std::runtime_error(message){};

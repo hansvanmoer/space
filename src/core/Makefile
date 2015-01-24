@@ -52,7 +52,7 @@ ARFLAGS = cru
 libcore_a_AR = $(AR) $(ARFLAGS)
 libcore_a_LIBADD =
 am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT) \
-	libcore_a-Language.$(OBJEXT)
+	libcore_a-Language.$(OBJEXT) libcore_a-Resource.$(OBJEXT)
 libcore_a_OBJECTS = $(am_libcore_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -153,7 +153,7 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = libcore.a
-libcore_a_SOURCES = Path.cpp Language.cpp
+libcore_a_SOURCES = Path.cpp Language.cpp Resource.cpp
 libcore_a_CPPFLAGS = -std=c++11
 all: all-am
 
@@ -205,6 +205,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/libcore_a-Language.Po
 include ./$(DEPDIR)/libcore_a-Path.Po
+include ./$(DEPDIR)/libcore_a-Resource.Po
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -247,6 +248,20 @@ libcore_a-Language.obj: Language.cpp
 #	source='Language.cpp' object='libcore_a-Language.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Language.obj `if test -f 'Language.cpp'; then $(CYGPATH_W) 'Language.cpp'; else $(CYGPATH_W) '$(srcdir)/Language.cpp'; fi`
+
+libcore_a-Resource.o: Resource.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Resource.o -MD -MP -MF $(DEPDIR)/libcore_a-Resource.Tpo -c -o libcore_a-Resource.o `test -f 'Resource.cpp' || echo '$(srcdir)/'`Resource.cpp
+	$(am__mv) $(DEPDIR)/libcore_a-Resource.Tpo $(DEPDIR)/libcore_a-Resource.Po
+#	source='Resource.cpp' object='libcore_a-Resource.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Resource.o `test -f 'Resource.cpp' || echo '$(srcdir)/'`Resource.cpp
+
+libcore_a-Resource.obj: Resource.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Resource.obj -MD -MP -MF $(DEPDIR)/libcore_a-Resource.Tpo -c -o libcore_a-Resource.obj `if test -f 'Resource.cpp'; then $(CYGPATH_W) 'Resource.cpp'; else $(CYGPATH_W) '$(srcdir)/Resource.cpp'; fi`
+	$(am__mv) $(DEPDIR)/libcore_a-Resource.Tpo $(DEPDIR)/libcore_a-Resource.Po
+#	source='Resource.cpp' object='libcore_a-Resource.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Resource.obj `if test -f 'Resource.cpp'; then $(CYGPATH_W) 'Resource.cpp'; else $(CYGPATH_W) '$(srcdir)/Resource.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

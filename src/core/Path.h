@@ -9,6 +9,7 @@
 #define	PATH_H
 
 #include <string>
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 
@@ -55,8 +56,9 @@ namespace Core{
     public:
         PathException(std::string message);
     };
-    
 }
+
+std::ostream &operator<<(std::ostream &output, const Core::Path &path);
 
 #endif	/* PATH_H */
 

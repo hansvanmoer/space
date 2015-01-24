@@ -1,0 +1,5 @@
+{
+    "id" : "default",
+    "loadDefault" : false,
+    "languages" : ["en","en_gb","en_us"]
+}

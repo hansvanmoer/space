@@ -41,7 +41,7 @@ namespace JSON{
             using Number = typename JSONTraits::Number;
             using Boolean = typename JSONTraits::Boolean;
         public:
-            struct NodeData;
+            class NodeData;
         private:
             
             union NodeContent{

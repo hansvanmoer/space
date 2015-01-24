@@ -151,6 +151,10 @@ namespace JSON {
         Node findNode(FieldId fieldId) const {
             return Node{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
         };
+        
+        bool hasNode(FieldId fieldId) const{
+            return findChildData(fieldId);
+        };
 
         Object getObject(FieldId fieldId) const {
             return Object{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
@@ -160,12 +164,22 @@ namespace JSON {
             return Object{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
         };
         
+        bool hasObject(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::OBJECT;
+        };
+        
         Array getArray(FieldId fieldId) const {
-            return Node{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
+            return Array{TreeNodeBase<JSONTraits>::tree_, getChildData(fieldId)};
         };
         
         Array findArray(FieldId fieldId) const {
             return Array{TreeNodeBase<JSONTraits>::tree_, findChildData(fieldId)};
+        };
+        
+        bool hasArray(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::ARRAY;
         };
         
         String getString(FieldId fieldId) const {
@@ -185,6 +199,11 @@ namespace JSON {
             }
         };
         
+        bool hasString(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::STRING;
+        };
+        
         Number getNumber(FieldId fieldId) const {
             return TypePolicy::getNumber(getChildData(fieldId));
         };
@@ -200,6 +219,11 @@ namespace JSON {
             }else{
                 return defaultValue;
             }
+        };
+        
+        bool hasNumber(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::NUMBER;
         };
         
         Boolean getBoolean(FieldId fieldId) const {
@@ -219,12 +243,22 @@ namespace JSON {
             }
         };
         
+        bool hasBoolean(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::BOOLEAN;
+        };
+        
         void getNull(FieldId fieldId) const{
             TypePolicy::getNull(getChildData(fieldId));
         };
         
         bool findNull(FieldId fieldId) const{
             return TypePolicy::getNull(findChildData(fieldId));
+        };
+        
+        bool hasNull(FieldId fieldId) const{
+            Data *data = findChildData(fieldId);
+            return data && data->type() == NodeType::NULL_VALUE;
         };
     };
     

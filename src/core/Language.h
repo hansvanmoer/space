@@ -19,19 +19,19 @@
 namespace Core{
     
     class Language{
-        
-        Language(const Language *parent, const std::string code, UnicodeString name, const std::locale &locale);
+    public:
+        Language(const Language *parent, const std::string id, UnicodeString name, const std::locale &locale);
         
         const Language *parent() const;
         
-        const std::string &code() const;
+        const std::string &id() const;
         
         const UnicodeString &name() const;
         
         const std::locale &locale() const;
     private:
         const Language *parent_;
-        std::string code_;
+        std::string id_;
         UnicodeString name_;
         const std::locale locale_;
     

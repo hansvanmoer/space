@@ -158,8 +158,8 @@ namespace JSON{
         Input &input_;
         
         ReaderException createException(Range begin, Range errorLocation, std::string message){
-            int line = 0;
-            int column = 0;
+            int line = 1;
+            int column = 1;
             Range range{begin.begin(), errorLocation.begin()};
             while(range){
                 int c = JSONTraits::CharTraits::to_int_type(*range);
@@ -187,12 +187,15 @@ namespace JSON{
                 if(!builder_.valid()){
                     throw createException(data, parser.current(), builder_.errorMessage());
                 }
+            }catch(ReaderException &e){
+                delete tree_;
+                throw;
             }catch(JSONException &e){
                 delete tree_;
                 throw ReaderException(e.what());
             }catch(...){
                 delete tree_;
-                throw;
+                throw ReaderException("an unknown error has occurred while parsing the json document");
             }
         };
         

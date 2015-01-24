@@ -17,6 +17,15 @@ namespace Core{
     public:
         ResourceException(std::string message);
     };
+    
+    template<typename Key> class ResourceNotFoundException : public ResourceException{
+    public:
+        ResourceNotFoundException(Key key);
+        
+        Key key() const;
+    private:
+        Key key_;
+    };
    
     template<typename Key, typename Resource> class BasicResourcePolicy{
     protected:
@@ -39,7 +48,7 @@ namespace Core{
         const Resource *operator[](Key key) const{
             auto found = resources_.find(key);
             if(found == resources_.end()){
-                throw ResourceException(std::string{"resource not found for key "}+ std::string{key});
+                throw ResourceNotFoundException<Key>(key);
             }else{
                 return found->second;
             }
