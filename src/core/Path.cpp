@@ -1,5 +1,4 @@
 #include "Path.h"
-#include "Settings.h"
 #include "System.h"
 
 #include <iostream>
@@ -14,7 +13,7 @@
 #include <pwd.h>
 #endif
 
-using namespace Game;
+using namespace Core;
 
 #ifdef OS_UNIX_LIKE
 

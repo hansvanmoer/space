@@ -6,6 +6,9 @@
 #include <fstream>
 
 using namespace Game;
+using Core::Path;
+using Core::PathException;
+
 
 using Document = JSON::Document<JSON::BufferedInput<> >;
 using Object = typename Document::Object;

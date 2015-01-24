@@ -12,7 +12,7 @@
 #include <fstream>
 #include <stdexcept>
 
-namespace Game{
+namespace Core{
     
     class Path{
     public:

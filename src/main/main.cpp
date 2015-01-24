@@ -6,6 +6,7 @@
 #include <iostream>
 
 using namespace Game;
+using Core::Path;
 
 bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;

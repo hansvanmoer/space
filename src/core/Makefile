@@ -51,7 +51,7 @@ AR = ar
 ARFLAGS = cru
 libcore_a_AR = $(AR) $(ARFLAGS)
 libcore_a_LIBADD =
-am_libcore_a_OBJECTS = Temp.$(OBJEXT)
+am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT)
 libcore_a_OBJECTS = $(am_libcore_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -152,7 +152,8 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = libcore.a
-libcore_a_SOURCES = Temp.cpp
+libcore_a_SOURCES = Path.cpp
+libcore_a_CPPFLAGS = -std=c++11
 all: all-am
 
 .SUFFIXES:
@@ -201,7 +202,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/Temp.Po
+include ./$(DEPDIR)/libcore_a-Path.Po
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -216,6 +217,20 @@ include ./$(DEPDIR)/Temp.Po
 #	source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+libcore_a-Path.o: Path.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Path.o -MD -MP -MF $(DEPDIR)/libcore_a-Path.Tpo -c -o libcore_a-Path.o `test -f 'Path.cpp' || echo '$(srcdir)/'`Path.cpp
+	$(am__mv) $(DEPDIR)/libcore_a-Path.Tpo $(DEPDIR)/libcore_a-Path.Po
+#	source='Path.cpp' object='libcore_a-Path.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Path.o `test -f 'Path.cpp' || echo '$(srcdir)/'`Path.cpp
+
+libcore_a-Path.obj: Path.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Path.obj -MD -MP -MF $(DEPDIR)/libcore_a-Path.Tpo -c -o libcore_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`
+	$(am__mv) $(DEPDIR)/libcore_a-Path.Tpo $(DEPDIR)/libcore_a-Path.Po
+#	source='Path.cpp' object='libcore_a-Path.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

@@ -19,18 +19,18 @@ namespace Game{
     public:
         static const std::string NAME;
         
-        Path applicationPath();
+        Core::Path applicationPath();
                 
-        Path dataPath();
+        Core::Path dataPath();
         
-        Path runtimeDataPath();
+        Core::Path runtimeDataPath();
         
     private:
-        Path applicationPath_;
-        Path dataPath_;
-        Path runtimeDataPath_;
+        Core::Path applicationPath_;
+        Core::Path dataPath_;
+        Core::Path runtimeDataPath_;
         
-        DataSystem(Path applicationPath);
+        DataSystem(Core::Path applicationPath);
         
         friend class ApplicationSystem<DataSystem>;
     };

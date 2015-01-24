@@ -3,4 +3,5 @@
 #
 
 noinst_LIBRARIES=libcore.a
-libcore_a_SOURCES=Temp.cpp
+libcore_a_SOURCES=Path.cpp
+libcore_a_CPPFLAGS=-std=c++11

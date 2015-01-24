@@ -9,6 +9,7 @@
 #include <pwd.h>
 
 using namespace Game;
+using Core::Path;
 
 const std::string DataSystem::NAME{"data"};
 
