@@ -1,0 +1,25 @@
+[
+    {
+        code : "en",
+        name : "English",
+        parent : null,
+        locale : {
+            windows : "en-US"
+            posix : "en_US.UTF8"
+        }
+    },
+    {
+        code : "en_us",
+        name : "American English",
+        parent : "en"
+    },
+    {
+        code : "en_gb",
+        name : "British English",
+        parent : "en",
+        locale : {
+            windows : "en-GB",
+            posix : "en_GB.UTF8"
+        }
+    }
+]

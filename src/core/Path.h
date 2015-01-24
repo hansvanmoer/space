@@ -34,9 +34,15 @@ namespace Core{
         
         std::string data() const;
         
-        bool openFile(std::ofstream &output) const;
+        template<typename Char, typename CharTraits> bool openFile(std::basic_ofstream<Char,CharTraits> &output) const{
+            output.open(data_.c_str());
+            return output.good();
+        };
         
-        bool openFile(std::ifstream &input) const;
+        template<typename Char, typename CharTraits>  bool openFile(std::basic_ifstream<Char,CharTraits> &input) const{
+            input.open(data_.c_str());
+            return input.good();
+        };
 
     private:
         std::string data_;

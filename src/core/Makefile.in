@@ -51,7 +51,8 @@ AR = ar
 ARFLAGS = cru
 libcore_a_AR = $(AR) $(ARFLAGS)
 libcore_a_LIBADD =
-am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT)
+am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT) \
+	libcore_a-Language.$(OBJEXT)
 libcore_a_OBJECTS = $(am_libcore_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -152,7 +153,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libcore.a
-libcore_a_SOURCES = Path.cpp
+libcore_a_SOURCES = Path.cpp Language.cpp
 libcore_a_CPPFLAGS = -std=c++11
 all: all-am
 
@@ -202,6 +203,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcore_a-Language.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libcore_a-Path.Po@am__quote@
 
 .cpp.o:
@@ -231,6 +233,20 @@ libcore_a-Path.obj: Path.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Path.cpp' object='libcore_a-Path.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`
+
+libcore_a-Language.o: Language.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Language.o -MD -MP -MF $(DEPDIR)/libcore_a-Language.Tpo -c -o libcore_a-Language.o `test -f 'Language.cpp' || echo '$(srcdir)/'`Language.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libcore_a-Language.Tpo $(DEPDIR)/libcore_a-Language.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Language.cpp' object='libcore_a-Language.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Language.o `test -f 'Language.cpp' || echo '$(srcdir)/'`Language.cpp
+
+libcore_a-Language.obj: Language.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Language.obj -MD -MP -MF $(DEPDIR)/libcore_a-Language.Tpo -c -o libcore_a-Language.obj `if test -f 'Language.cpp'; then $(CYGPATH_W) 'Language.cpp'; else $(CYGPATH_W) '$(srcdir)/Language.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libcore_a-Language.Tpo $(DEPDIR)/libcore_a-Language.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Language.cpp' object='libcore_a-Language.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Language.obj `if test -f 'Language.cpp'; then $(CYGPATH_W) 'Language.cpp'; else $(CYGPATH_W) '$(srcdir)/Language.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

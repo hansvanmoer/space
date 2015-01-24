@@ -117,15 +117,4 @@ std::string Path::data() const{
     return data_;
 }
 
-bool Path::openFile(std::ifstream &input) const{
-    input.open(data_.c_str());
-    return input.good();
-}
-
-
-bool Path::openFile(std::ofstream &output) const{
-    output.open(data_.c_str());
-    return output.good();
-}
-
 PathException::PathException(std::string message) : std::runtime_error(message){};

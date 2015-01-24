@@ -13,7 +13,18 @@
 
 namespace Core{
     
-    typedef std::basic_string<char32_t> UnicodeString;
+    namespace Unicode{
+        typedef char32_t Character;
+        typedef std::char_traits<char32_t> CharacterTraits;
+        typedef std::basic_string<Character> String;
+        typedef std::basic_ifstream<char32_t> FileInputStream;
+        typedef std::basic_ofstream<char32_t> FileOutputStream;
+        typedef std::basic_ostringstream<char32_t> StringInputStream;
+        typedef std::basic_ostringstream<char32_t> StringOutputStream;
+        
+    }
+    
+    typedef Unicode::String UnicodeString;
     
     template<typename Char, typename CharTraits> std::basic_string<Char, CharTraits> convertString(const UnicodeString &string){
         std::basic_ostringstream<Char, CharTraits> buffer;
