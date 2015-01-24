@@ -3,6 +3,8 @@
 #include "Application.h"
 #include "Settings.h"
 
+#include <iostream>
+
 using namespace Game;
 
 WindowException::WindowException(std::string message) : std::runtime_error(message){}
@@ -30,9 +32,12 @@ bool Window::closed() const{
     return !handle_;
 }
 
-void Window::open(Core::UnicodeString title, Core::Bounds<int> bounds){
+void Window::open(Core::UnicodeString title, Core::Bounds<int> bounds, unsigned int bitsPerPixel){
     if(handle_){
         throw WindowException{"window already opened"};
+    }
+    if(bitsPerPixel != 24 && bitsPerPixel != 32){
+        throw WindowException(std::string{"unsupported window bit depth: "} + std::to_string(bitsPerPixel));
     }
     sf::Vector2u size{
         static_cast<unsigned int>(
@@ -46,8 +51,9 @@ void Window::open(Core::UnicodeString title, Core::Bounds<int> bounds){
                 bounds.top - bounds.bottom
         )
     };
-    sf::VideoMode videoMode{size.x, size.y,32};
-    handle_ = new sf::Window(videoMode, std::basic_string<uint32_t>{title.begin(), title.end()}, sf::Style::Default, createContextSettings());
+    
+    sf::VideoMode videoMode{size.x, size.y,bitsPerPixel};
+    handle_ = new sf::Window(videoMode, std::basic_string<uint32_t>{title.begin(), title.end()}, sf::Style::Default);
     sf::Vector2i pos{bounds.left, bounds.top};
     handle_->setPosition(pos);
     handle_->setSize(size);
@@ -67,9 +73,9 @@ sf::ContextSettings Window::createContextSettings(){
     sf::ContextSettings settings;
     settings.depthBits=24;
     settings.stencilBits=8;
-    settings.majorVersion=3;
+    settings.majorVersion=2;
     settings.minorVersion=0;
-    settings.antialiasingLevel=static_cast<unsigned int>(videoSettings.antialiasingLevel);
+    settings.antialiasingLevel=0;//static_cast<unsigned int>(videoSettings.antialiasingLevel);
 }
 
 Window::~Window(){

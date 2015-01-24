@@ -43,7 +43,7 @@ void shutdownSubSystems(){
 void startEventLoop(){
     Window window;
     std::string title{"Main window"};
-    window.open(Core::UnicodeString{title.begin(), title.end()}, Core::Bounds<int>{0,0,800,600});
+    window.open(Core::UnicodeString{title.begin(), title.end()}, Core::Bounds<int>{0,800,0,600}, 24);
     window.activateContext();
     WindowEvent event;
     bool running = true;

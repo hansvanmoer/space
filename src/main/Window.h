@@ -35,7 +35,7 @@ namespace Game{
                
         ~Window();
         
-        void open(Core::UnicodeString title, Core::Bounds<int> bounds);
+        void open(Core::UnicodeString title, Core::Bounds<int> bounds, unsigned int bitsPerPixel);
         
         void openFullScreen(Core::UnicodeString title, Core::Size<int> size);
         
