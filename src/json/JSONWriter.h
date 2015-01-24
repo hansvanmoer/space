@@ -143,6 +143,119 @@ namespace JSON{
         };
     };
     
+    template<typename JSONTraits = BasicJSONTraits<char, std::char_traits<char>, std::allocator<char> > > class PrettyWriter : public WriterBase<JSONTraits>{
+    public:
+        using Char = typename JSONTraits::Char;
+        using CharTraits = typename JSONTraits::CharTraits;
+        using String = typename JSONTraits::String;
+        using FieldName = typename JSONTraits::String;
+        using Number = typename JSONTraits::Number;
+        using Boolean = typename JSONTraits::Boolean;
+        using OutputStream = std::basic_ostream<Char, CharTraits>;
+        using Writer = PrettyWriter<JSONTraits>;
+    private:
+        bool trailing_;
+        int indentation_;
+        
+        void writeSeparator(){
+            if(trailing_){
+                WriterBase<JSONTraits>::output_.put(Tokens::ELEMENT_SEPARATOR);
+                newLine();
+            }
+        };
+        
+        void indent(){
+            if(indentation_ > 0){
+                for(int i = 0;i < indentation_; ++i){
+                    WriterBase<JSONTraits>::output_.put(Tokens::TAB);
+                }
+            }
+        }
+        
+        void newLine(){
+            WriterBase<JSONTraits>::output_ << std::endl;
+            indent();
+        }
+        
+    public:
+        PrettyWriter(OutputStream &output) : WriterBase<JSONTraits>(output), trailing_(){};
+        
+        PrettyWriter(OutputStream &&output) : WriterBase<JSONTraits>(output), trailing_(){};
+        
+        Writer &beginObject(){
+            writeSeparator();
+            WriterBase<JSONTraits>::output_.put(Tokens::OBJECT_BEGIN);
+            trailing_=false;
+            ++indentation_;
+            newLine();
+            return *this;
+        };
+        
+        Writer &endObject(){
+            --indentation_;
+            newLine();
+            WriterBase<JSONTraits>::output_.put(Tokens::OBJECT_END);
+            trailing_=true;
+            return *this;
+        };
+        
+        Writer &beginArray(){
+            writeSeparator();
+            WriterBase<JSONTraits>::output_.put(Tokens::ARRAY_BEGIN);
+            trailing_=false;
+            return *this;
+        };
+        
+        Writer &endArray(){
+            WriterBase<JSONTraits>::output_.put(Tokens::ARRAY_END);
+            trailing_=false;
+            return *this;
+        };
+        
+        Writer &beginField(FieldName name){
+            writeSeparator();
+            WriterBase<JSONTraits>::writeEscapedString(name);
+            WriterBase<JSONTraits>::output_.put(Tokens::KEY_VALUE_SEPARATOR);
+            trailing_=false;
+            return *this;
+        };
+        
+        Writer &endField(){
+            trailing_=true;
+            return *this;
+        };
+        
+        Writer &writeString(String string){
+            writeSeparator();
+            WriterBase<JSONTraits>::writeEscapedString(string);
+            trailing_=true;
+            return *this;
+        };
+        
+        Writer &writeNumber(Number number){
+            writeSeparator();
+            WriterBase<JSONTraits>::output_ << number;
+            trailing_=true;
+            return *this;
+        };
+        
+        Writer &writeBoolean(Boolean boolean){
+            writeSeparator();
+            if(boolean){
+                WriterBase<JSONTraits>::writeTokens(Tokens::LITERAL_TRUE, Tokens::LITERAL_TRUE_LENGTH);
+            }else{
+                WriterBase<JSONTraits>::writeTokens(Tokens::LITERAL_FALSE, Tokens::LITERAL_FALSE_LENGTH);
+            }
+            trailing_=true;
+            return *this;
+        };
+        
+        Writer &writeNull(){
+            writeSeparator();
+            WriterBase<JSONTraits>::writeTokens(Tokens::LITERAL_NULL, Tokens::LITERAL_NULL_LENGTH);
+            return *this;
+        };
+    };
 }
 
 #endif	/* JSONWRITER_H */

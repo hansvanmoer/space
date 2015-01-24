@@ -59,7 +59,6 @@ void startEventLoop(){
     }
 }
 
-
 int main(int argCount, const char **args){
     startSubSystems(argCount, args);
     try{

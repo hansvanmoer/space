@@ -10,7 +10,7 @@ using namespace Game;
 using Document = JSON::Document<JSON::BufferedInput<> >;
 using Object = typename Document::Object;
 
-using Writer = JSON::MinifiedWriter<>;
+using Writer = JSON::PrettyWriter<>;
 
 SettingsException::SettingsException(std::string message) : std::runtime_error(message){
 }
