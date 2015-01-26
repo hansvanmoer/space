@@ -51,7 +51,6 @@ namespace Core{
         static Path applicationPath_;
     };
     
-    
     class PathException : public std::runtime_error{
     public:
         PathException(std::string message);

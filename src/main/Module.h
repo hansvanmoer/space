@@ -10,6 +10,7 @@
 
 #include "Language.h"
 #include "Path.h"
+#include "StringBundle.h"
 
 #include <string>
 #include <map>
@@ -41,24 +42,16 @@ namespace Game{
 
         const LanguageMap &languages() const;
         
+        void load(Core::StringBundle &bundle, Core::Path basePath, const Core::Language *language) const;
+        
     private:
-
-        void loadModuleData();
-        
-        void loadLanguages();
-        
         Core::Path path_;
         std::string id_;
         bool loadDefault_;
         std::map<std::string, const Core::Language *> languages_;
+        Core::StringBundle labels_;
     };
     
-    struct LanguageData{
-        std::string parentId;
-        const LanguageData *parent;
-        std::string localeName;
-    };    
 }
 
 #endif	/* APPLICATIONLANGUAGE_H */
-

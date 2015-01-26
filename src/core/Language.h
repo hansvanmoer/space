@@ -29,6 +29,7 @@ namespace Core{
         const UnicodeString &name() const;
         
         const std::locale &locale() const;
+    
     private:
         const Language *parent_;
         std::string id_;
@@ -39,22 +40,7 @@ namespace Core{
         Language &operator=(const Language &) = delete;
     };
     
-    class StringBundle : public ResourceBundle<std::string, UnicodeString>{
-    public:
-        StringBundle();
-        ~StringBundle();
-        
-        void load(Path path);
-        
-    private:
 
-        void parse(Unicode::Character *buffer, std::streamsize length);
-        
-        Unicode::Character *parseStatement(Unicode::Character *begin, Unicode::Character *end, int line);
-        
-        StringBundle(const StringBundle &) = delete;
-        StringBundle &operator=(const StringBundle &) = delete;
-    };
 }
 
 #endif	/* LANGUAGE_H */

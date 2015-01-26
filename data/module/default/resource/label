@@ -1,4 +1,3 @@
-module.name=Base game
 base_only=base
 language_override=base
 dialect_override=base
