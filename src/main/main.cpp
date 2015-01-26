@@ -42,12 +42,6 @@ void loadModule(){
         Core::StringBundle bundle;
         Path labelPath{"resource/label"};
         module.load(bundle, labelPath, module.language("en_us"));
-        //std::cout << *bundle["base_only"] << std::endl << *bundle["language_override"]<< std::endl << *bundle["dialect_override"] << std::endl;
-        //const Core::Unicode::String *str{bundle["base_only"]};
-        //for(auto i = str->begin(); i != str->end(); ++i){
-        //    std::cout << *i;
-        //}
-        //std::cout << std::endl;
     }catch(ModuleException &e){
         std::cout << "unable to load module" << std::endl << e.what() << std::endl;
         throw;

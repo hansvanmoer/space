@@ -180,11 +180,10 @@ bool Module::loadDefault() const {
     return loadDefault_;
 }
 
-void loadFromPath(Core::StringBundle &bundle, Path path, const std::locale &locale){
+void loadFromPath(Core::StringBundle &bundle, Path path){
     try{
-        Core::Unicode::FileInputStream input;
+        std::ifstream input;
         path.openFile(input);
-        input.imbue(locale);
         bundle.load(input);
     }catch(Core::ResourceException &e){
         std::cout << "unable to load string bundle from file " << path << ":" << e.what() << std::endl;
@@ -199,11 +198,10 @@ void Module::load(Core::StringBundle& bundle, Path baseName, const Core::Languag
             languages.push_front(parent);
             parent = parent->parent();
         }
-        Core::Unicode::FileInputStream input;
-        loadFromPath(bundle, Path{path_, baseName.data()}, language->locale());
+        loadFromPath(bundle, Path{path_, baseName.data()});
         for(auto i = languages.begin(); i != languages.end(); ++i){
             const Language *lang = *i;
-            loadFromPath(bundle, Path{path_, baseName.data() + std::string{"_"}+lang->id()}, lang->locale());
+            loadFromPath(bundle, Path{path_, baseName.data() + std::string{"_"}+lang->id()});
         }
     }
 }

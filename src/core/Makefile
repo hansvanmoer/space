@@ -51,9 +51,9 @@ AR = ar
 ARFLAGS = cru
 libcore_a_AR = $(AR) $(ARFLAGS)
 libcore_a_LIBADD =
-am_libcore_a_OBJECTS = libcore_a-Unicode.$(OBJEXT) \
-	libcore_a-Path.$(OBJEXT) libcore_a-Language.$(OBJEXT) \
-	libcore_a-Resource.$(OBJEXT) libcore_a-StringBundle.$(OBJEXT)
+am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT) \
+	libcore_a-Language.$(OBJEXT) libcore_a-Resource.$(OBJEXT) \
+	libcore_a-StringBundle.$(OBJEXT)
 libcore_a_OBJECTS = $(am_libcore_a_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -154,7 +154,7 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = libcore.a
-libcore_a_SOURCES = Unicode.cpp Path.cpp Language.cpp Resource.cpp StringBundle.cpp
+libcore_a_SOURCES = Path.cpp Language.cpp Resource.cpp StringBundle.cpp
 libcore_a_CPPFLAGS = -std=c++11
 all: all-am
 
@@ -208,7 +208,6 @@ include ./$(DEPDIR)/libcore_a-Language.Po
 include ./$(DEPDIR)/libcore_a-Path.Po
 include ./$(DEPDIR)/libcore_a-Resource.Po
 include ./$(DEPDIR)/libcore_a-StringBundle.Po
-include ./$(DEPDIR)/libcore_a-Unicode.Po
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -223,20 +222,6 @@ include ./$(DEPDIR)/libcore_a-Unicode.Po
 #	source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-libcore_a-Unicode.o: Unicode.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Unicode.o -MD -MP -MF $(DEPDIR)/libcore_a-Unicode.Tpo -c -o libcore_a-Unicode.o `test -f 'Unicode.cpp' || echo '$(srcdir)/'`Unicode.cpp
-	$(am__mv) $(DEPDIR)/libcore_a-Unicode.Tpo $(DEPDIR)/libcore_a-Unicode.Po
-#	source='Unicode.cpp' object='libcore_a-Unicode.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Unicode.o `test -f 'Unicode.cpp' || echo '$(srcdir)/'`Unicode.cpp
-
-libcore_a-Unicode.obj: Unicode.cpp
-	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Unicode.obj -MD -MP -MF $(DEPDIR)/libcore_a-Unicode.Tpo -c -o libcore_a-Unicode.obj `if test -f 'Unicode.cpp'; then $(CYGPATH_W) 'Unicode.cpp'; else $(CYGPATH_W) '$(srcdir)/Unicode.cpp'; fi`
-	$(am__mv) $(DEPDIR)/libcore_a-Unicode.Tpo $(DEPDIR)/libcore_a-Unicode.Po
-#	source='Unicode.cpp' object='libcore_a-Unicode.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Unicode.obj `if test -f 'Unicode.cpp'; then $(CYGPATH_W) 'Unicode.cpp'; else $(CYGPATH_W) '$(srcdir)/Unicode.cpp'; fi`
 
 libcore_a-Path.o: Path.cpp
 	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Path.o -MD -MP -MF $(DEPDIR)/libcore_a-Path.Tpo -c -o libcore_a-Path.o `test -f 'Path.cpp' || echo '$(srcdir)/'`Path.cpp

@@ -21,13 +21,13 @@ namespace Core{
         StringBundle();
         ~StringBundle();
         
-        void load(Unicode::InputStream &input);
+        void load(std::istream &input);
         
     private:
 
-        void parse(Unicode::Character *buffer, std::streamsize length);
+        void parse(const char32_t *buffer, std::streamsize length);
         
-        Unicode::Character *parseStatement(Unicode::Character *begin, Unicode::Character *end, int line);
+        const char32_t *parseStatement(const char32_t *begin, const char32_t *end, int line);
         
         StringBundle(const StringBundle &) = delete;
         StringBundle &operator=(const StringBundle &) = delete;
