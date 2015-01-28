@@ -254,7 +254,7 @@ namespace JSON {
                 parseBranch();
                 skipWhitespace();
                 if (current_) {
-                    throw ParseException("");
+                    throw ParseException("multiple root nodes found in json stream");
                 }
             } catch (ParseException &e) {
                 listener_.error(e.message());

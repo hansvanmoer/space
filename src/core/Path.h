@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <list>
 #include <stdexcept>
 
 namespace Core{
@@ -23,7 +24,13 @@ namespace Core{
         
         Path parent() const;
         
+        std::string name() const;
+        
         Path child(std::string name) const;
+        
+        std::list<Path> children() const;
+        
+        std::list<Path> childFolders() const;
         
         bool fileExists() const;
         

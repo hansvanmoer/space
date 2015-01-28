@@ -1,3 +1,4 @@
 {
+    "requiredModules" : ["default"],
     "languages" : ["en","en_gb","en_us"]
 }

@@ -4,18 +4,142 @@
 #include "System.h"
 #include "Application.h"
 #include "String.h"
+#include "IO.h"
 
 #include <list>
+#include <set>
+#include <algorithm>
 
 using namespace Game;
 
 using Core::Path;
 using Core::Language;
 
-using Document = JSON::Document<JSON::BufferedInput<> >;
-using Object = typename JSON::Document<JSON::BufferedInput<> >::Object;
-using Array = typename JSON::Document<JSON::BufferedInput<> >::Array;
-using ArrayIterator = typename Array::Iterator;
+ModuleException::ModuleException(std::string msg) : std::runtime_error{msg}{
+}
+
+ModuleDescriptor::ModuleDescriptor() {}
+
+void ModuleLoader::readModuleDescriptor(Path modulePath, ModuleDescriptor &descriptor){
+    descriptor.path = modulePath;
+    descriptor.moduleId=modulePath.name();
+    std::ifstream input;
+    Path descriptorPath{modulePath.child("module")};
+    descriptorPath.openFile(input);
+    if(descriptorPath.fileExists() && input.good()){
+        try{
+            IO::Document document = IO::open(input);
+            IO::Object moduleData = document.rootNode().object();
+            if(moduleData.hasArray("requiredModules")){
+                IO::Array requiredModulesData = moduleData.getArray("requiredModules");
+                std::list<std::string> requiredModuleList;
+                for(auto i = requiredModulesData.begin(); i != requiredModulesData.end(); ++i){
+                    requiredModuleList.push_back((*i).string());
+                }
+                descriptor.requiredModuleIds = requiredModuleList;
+            }
+            IO::Array languageArray = moduleData.getArray("languages");
+            std::list<std::string> languages;
+            for(auto i = languageArray.begin(); i != languageArray.end(); ++i){
+                languages.push_back((*i).string());
+            }
+            descriptor.languageIds = languages;
+        }catch(JSON::JSONException &e){
+            throw ModuleException{Core::toString("unable to parse module descriptor", modulePath, e.what())};
+        }
+    }else{
+        throw ModuleException{Core::toString("unable to read module descriptor", modulePath)};
+    }
+};
+
+ModuleLoader::ModuleLoader() : modules_(){};
+
+ModuleLoader::~ModuleLoader(){
+    for(auto i = modules_.begin(); i != modules_.end(); ++i){
+        delete i->second;
+    }
+}
+
+void ModuleLoader::addModule(Core::Path modulePath){
+    ModuleDescriptor *descriptor = new ModuleDescriptor{};
+    try{
+        readModuleDescriptor(modulePath, *descriptor);
+    }catch(std::exception &e){
+        delete descriptor;
+        throw;
+    }
+    if(modules_.find(descriptor->moduleId) == modules_.end()){
+        modules_.insert(std::make_pair(descriptor->moduleId, descriptor));
+    }else{
+        delete descriptor;
+        throw ModuleException(Core::toString("module '", descriptor->moduleId,"' already loaded"));
+    }
+}
+
+void ModuleLoader::addModules(Core::Path modulesPath){
+    std::list<Path> paths{modulesPath.childFolders()};
+    for(auto i = paths.begin(); i != paths.end(); ++i){
+        try{
+            addModule(*i);
+            std::cout << "module descriptor read from path '" << i->data() << "'" << std::endl;
+        }catch(std::exception &e){
+            std::cout << "unable to add module from path '" << i->data() << "': " << e.what() << std::endl;
+        }
+    }
+}
+
+void ModuleLoader::dependencies(std::string moduleId, std::list<const ModuleDescriptor *> &result) const {
+    auto found = modules_.find(moduleId);
+    if(found == modules_.end()){
+        throw ModuleException{Core::toString("module '", moduleId, "' was not found")};
+    }else{
+        const ModuleDescriptor *descriptor = found->second;
+        if(std::find(result.begin(), result.end(), descriptor) == result.end()){
+            result.push_front(descriptor);
+            for(auto i = descriptor->requiredModuleIds.begin(); i != descriptor->requiredModuleIds.end(); ++i){
+                std::string dependentModuleId = *i;
+                dependencies(dependentModuleId, result);
+            }
+        }
+    }
+}
+
+std::list<const ModuleDescriptor*> ModuleLoader::dependencies(std::string moduleId) const {
+    std::list<const ModuleDescriptor *> result;
+    dependencies(moduleId, result);
+    return result;
+}
+
+Module ModuleLoader::loadModule(std::string moduleId) const{
+    auto found = modules_.find(moduleId);
+    if(found == modules_.end()){
+        throw ModuleException{Core::toString("no module found for id '", moduleId,"'")};
+    }else{
+        std::list<const ModuleDescriptor *> modules = dependencies(moduleId);
+        return Module{found->second, modules};
+    }
+};
+
+Module::Module(const ModuleDescriptor* descriptor, const std::list<const ModuleDescriptor*>& dependencies) : descriptor_(descriptor), dependencies_(dependencies){};
+
+std::string Module::id() const{
+    return descriptor_->moduleId;
+}
+
+Core::Path Module::path() const{
+    return descriptor_->path;
+}
+
+std::list<Core::Path> Module::paths() const{
+    std::list<Core::Path> paths;
+    for(auto i = dependencies_.begin(); i != dependencies_.end(); ++i){
+        paths.push_back((*i)->path);
+    }
+    return paths;
+}
+
+
+/*
 
 ModuleException::ModuleException(std::string message) : std::runtime_error(message) {
 }
@@ -27,13 +151,13 @@ struct LanguageData {
     std::string localeName;
 };
 
-const LanguageData *createLanguageData(Object object) {
+const LanguageData *createLanguageData(IO::Object object) {
     LanguageData *data = new LanguageData{};
     try {
         data->parentId = object.findString("parent", "");
         data->name = object.getString("name");
         if (object.hasObject("locale")) {
-            Object localeObject = object.getObject("locale");
+            IO::Object localeObject = object.getObject("locale");
 #ifdef OS_UNIX_LIKE
             localeObject.getString("windows");
             data->localeName = localeObject.getString("posix");
@@ -118,11 +242,11 @@ std::map<std::string, const Language *> createLanguages(Path path, std::list<std
     languageData.openFile(input);
     std::map<std::string, const LanguageData *> languages;
     try {
-        Document document{JSON::BufferedInput<>
+        IO::Document document{JSON::BufferedInput<>
             {input}};
-        Array root{document.rootNode().array()};
+        IO::Array root{document.rootNode().array()};
         for (auto i = root.begin(); i != root.end(); ++i) {
-            Object object = (*i).object();
+            IO::Object object = (*i).object();
             languages.insert(std::make_pair(object.getString("id"), createLanguageData(object)));
         }
         return createLanguageTree(languages);
@@ -134,8 +258,47 @@ std::map<std::string, const Language *> createLanguages(Path path, std::list<std
     }
 };
 
-Module::Module(Path path) : path_(path) {
+struct ModuleData {
+    std::string id;
+    std::list<std::string> requiredModuleIds;
+    std::list<std::string> languageIds;
+    
+    ModuleData(std::string id_) : id(id_), requiredModuleIds(), languageIds(){};
+};
+
+void loadModuleDescriptor(Path modulePath, ModuleData &data, std::set<std::string> &alreadyLoaded) {
+    Path file{modulePath.child("module")};
     std::ifstream input;
+    if (file.openFile(input)) {
+        try {
+            IO::Document document{IO::open(input)};
+            IO::Object root{document.rootNode().object()};
+            IO::Array languageArray{root.getArray("languages")};
+            for (auto i = languageArray.begin(); i != languageArray.end(); ++i) {
+                data.languageIds.push_back((*i).string());
+            }
+            if (root.hasArray("requiredModules")) {
+                IO::Array requiredModulesArray{root.getArray("requiredModules")};
+                for (auto i = requiredModulesArray.begin(); i != requiredModulesArray.end(); ++i) {
+                    std::string required = (*i).string();
+                    auto found = std::find(data.requiredModuleIds.begin(), data.requiredModuleIds.end(), required);
+                    if(found == data.requiredModuleIds.end()){
+                        ModuleData requiredData;
+                        
+                    }
+                }
+            }
+            
+        } catch (JSON::JSONException &e) {
+            throw ModuleException(Core::toString("unable to parse module descriptor '", file, "': ", e.what()));
+        }
+    } else {
+        throw ModuleException(Core::toString("unable to open module descriptor: '", file, "', check if file exists and is not empty"));
+    }
+};
+
+Module::Module(Path path) : path_(path) {
+    /*std::ifstream input;
     Path moduleData{path_, "module"};
     moduleData.openFile(input);
     try {
@@ -161,9 +324,9 @@ const Module::LanguageMap & Module::languages() const {
 
 const Core::Language* Module::language(std::string id) const {
     auto found = languages_.find(id);
-    if(found == languages_.end()){
+    if (found == languages_.end()) {
         return nullptr;
-    }else{
+    } else {
         return found->second;
     }
 }
@@ -180,28 +343,31 @@ bool Module::loadDefault() const {
     return loadDefault_;
 }
 
-void loadFromPath(Core::StringBundle &bundle, Path path){
-    try{
+void loadFromPath(Core::StringBundle &bundle, Path path) {
+    try {
         std::ifstream input;
         path.openFile(input);
         bundle.load(input);
-    }catch(Core::ResourceException &e){
+    } catch (Core::ResourceException &e) {
         std::cout << "unable to load string bundle from file " << path << ":" << e.what() << std::endl;
     }
 };
 
 void Module::load(Core::StringBundle& bundle, Path baseName, const Core::Language *language) const {
-    if(language){
+    if (language) {
         std::list<const Core::Language *> languages;
         const Language *parent = language;
-        while(parent){
+        while (parent) {
             languages.push_front(parent);
             parent = parent->parent();
         }
         loadFromPath(bundle, Path{path_, baseName.data()});
-        for(auto i = languages.begin(); i != languages.end(); ++i){
+        for (auto i = languages.begin(); i != languages.end(); ++i) {
             const Language *lang = *i;
-            loadFromPath(bundle, Path{path_, baseName.data() + std::string{"_"}+lang->id()});
+
+            loadFromPath(bundle, Path{path_, baseName.data() + std::string {
+                    "_"}
+                +lang->id()});
         }
     }
 }
@@ -211,3 +377,5 @@ Module::~Module() {
         delete i->second;
     }
 }
+ * 
+ * */

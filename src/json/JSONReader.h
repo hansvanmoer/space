@@ -152,6 +152,11 @@ namespace JSON{
     > class Document{
     private:
         
+        using This = Document<Input,JSONTraits,TypePolicy,TreeBuilder>;
+        
+        Document(const This &document) = delete;
+        This &operator=(const This &document) = delete;
+        
         using Range = typename Input::Range;
         
         Tree<JSONTraits> *tree_;
@@ -214,6 +219,10 @@ namespace JSON{
         
         Document(Input &&input) : tree_(new Tree<JSONTraits>()), input_(input){
             parse();
+        };
+        
+        Document(This &&document) : tree_(document.tree_), input_(document.input_){
+            document.tree_ = nullptr;
         };
         
         Node rootNode() const{

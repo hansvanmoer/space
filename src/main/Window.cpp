@@ -32,7 +32,7 @@ bool Window::closed() const{
     return !handle_;
 }
 
-void Window::open(Core::UnicodeString title, Core::Bounds<int> bounds, unsigned int bitsPerPixel){
+void Window::open(std::u32string title, Core::Bounds<int> bounds, unsigned int bitsPerPixel){
     if(handle_){
         throw WindowException{"window already opened"};
     }

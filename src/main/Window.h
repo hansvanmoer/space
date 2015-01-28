@@ -37,7 +37,7 @@ namespace Game{
         
         void open(Core::UnicodeString title, Core::Bounds<int> bounds, unsigned int bitsPerPixel);
         
-        void openFullScreen(Core::UnicodeString title, Core::Size<int> size);
+        void openFullScreen(std::u32string title, Core::Size<int> size);
         
         void activateContext();
         

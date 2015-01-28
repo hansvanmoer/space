@@ -202,7 +202,7 @@ namespace Core {
 
     template<typename Intern, typename Extern> class UTF8ToUTF32InputBuffer : public CharacterInputBuffer<Intern, Extern> {
     private:
-
+        
         using State = typename CharacterInputBuffer<Intern, Extern>::State;
 
         State nextCodePoint(const Extern *fromBegin, const Extern *fromEnd, const Extern *&fromNext, Intern &value) {
@@ -295,6 +295,7 @@ namespace Core {
             return count;
         };
     };
+    
 }
 
 #endif	/* CHARACTERBUFFER_H */

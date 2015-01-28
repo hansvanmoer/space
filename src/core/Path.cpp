@@ -50,6 +50,17 @@ Path Path::parent() const{
     }
 };
 
+std::string Path::name() const{
+    std::string::size_type pos = data_.find_last_of(SEPARATOR);
+    if(pos == std::string::npos){
+        return data_;
+    }else if(pos == (data_.length() - 1)){
+        return std::string{};
+    }else{
+        return data_.substr(pos+1, data_.length());
+    }
+};
+
 Path Path::child(std::string name) const{
     return Path{data_, name};
 }
@@ -112,6 +123,44 @@ bool Path::createFolder() const{
     //TODO
 #endif
 }
+
+std::list<Path> Path::children() const{
+    std::list<Path> children;
+#ifdef OS_UNIX_LIKE
+    DIR *handle = opendir(data_.data());
+    struct dirent *child = readdir(handle);
+    while(child != NULL){
+        if(child->d_name[0] != '.'){
+            children.push_back(Path{*this, std::string{child->d_name}});
+        }
+        child = readdir(handle);
+    }
+    closedir(handle);
+#endif
+#ifdef OS_WINDOWS
+    //TODO
+#endif
+    return children;
+};
+
+std::list<Path> Path::childFolders() const{
+    std::list<Path> children;
+#ifdef OS_UNIX_LIKE
+    DIR *handle = opendir(data_.data());
+    struct dirent *child = readdir(handle);
+    while(child != NULL){
+        if(child->d_type == DT_DIR && child->d_name[0] != '.'){
+            children.push_back(Path{*this, std::string{child->d_name}});
+        }
+        child = readdir(handle);
+    }
+    closedir(handle);
+#endif
+#ifdef OS_WINDOWS
+    //TODO
+#endif
+    return children;
+};
 
 std::string Path::data() const{
     return data_;

@@ -32,16 +32,14 @@ bool startSubSystems(int argCount, const char **args){
 void loadModule(){
     Path modulesPath{ApplicationSystem<DataSystem>::instance().dataPath().child("module")};
     try{
-        Path modulePath{modulesPath.child("default")};
-        std::cout << "loading module from path " << modulePath << std::endl;
-        Module module{modulePath};
-        const Module::LanguageMap &languages = module.languages();
-        for(auto i = languages.begin(); i != languages.end(); ++i){
-            std::cout << "available language " << i->second->id() << std::endl;
+        ModuleLoader moduleLoader;
+        moduleLoader.addModules(modulesPath);
+        Module module{moduleLoader.loadModule("space")};
+        std::cout << "loading module " << module.id() << std::endl;
+        std::list<Core::Path> paths = module.paths();
+        for(auto i = paths.begin(); i != paths.end(); ++i){
+            std::cout << (*i) << std::endl;
         }
-        Core::StringBundle bundle;
-        Path labelPath{"resource/label"};
-        module.load(bundle, labelPath, module.language("en_us"));
     }catch(ModuleException &e){
         std::cout << "unable to load module" << std::endl << e.what() << std::endl;
         throw;
@@ -93,7 +91,7 @@ int main(int argCount, const char **args){
         std::cout << "loading defaults" << std::endl;
     }
     loadModule();
-    startEventLoop();
+    //startEventLoop();
     
     try{
         ApplicationSystem<SettingsSystem>::instance().save();

@@ -20,36 +20,57 @@ namespace Game{
     
     class ModuleException : public std::runtime_error{
     public:
-        ModuleException(std::string message);
+        ModuleException(std::string msg);
+    };
+    
+    struct ModuleDescriptor{
+        std::string moduleId;
+        Core::Path path;
+        std::list<std::string> requiredModuleIds;
+        std::list<std::string> languageIds;
+        
+        ModuleDescriptor();
     };
     
     class Module{
-    public:
+    public:    
         
-        using LanguageMap = std::map<std::string, const Core::Language *>;
+        Module(const ModuleDescriptor *descriptor, const std::list<const ModuleDescriptor *> &dependencies);
         
-        Module(Core::Path path);
-
-        ~Module();
+        std::string id() const;
         
-        Core::Path path();
+        Core::Path path() const;
         
-        const std::string &id() const;
-        
-        bool loadDefault() const;
-        
-        const Core::Language *language(std::string id) const;
-
-        const LanguageMap &languages() const;
-        
-        void load(Core::StringBundle &bundle, Core::Path basePath, const Core::Language *language) const;
-        
+        std::list<Core::Path> paths() const;
+                
     private:
-        Core::Path path_;
-        std::string id_;
-        bool loadDefault_;
-        std::map<std::string, const Core::Language *> languages_;
-        Core::StringBundle labels_;
+        const ModuleDescriptor *descriptor_;
+        std::list<const ModuleDescriptor *> dependencies_;
+    };
+    
+    class ModuleLoader{
+    public:
+        ModuleLoader();
+        
+        
+        void addModule(Core::Path modulePath);
+        
+        void addModules(Core::Path modulesFolder);
+        
+        Module loadModule(std::string moduleId) const;
+        
+        ~ModuleLoader();
+    private:
+        std::map<std::string, const ModuleDescriptor *> modules_;
+        
+        void readModuleDescriptor(Core::Path modulePath, ModuleDescriptor &descriptor);
+        
+        std::list<const ModuleDescriptor *> dependencies(std::string moduleId) const;
+                
+        void dependencies(std::string moduleId, std::list<const ModuleDescriptor *> &dependencies) const;
+        
+        ModuleLoader(const ModuleLoader &) = delete;
+        ModuleLoader &operator=(const ModuleLoader &) = delete;
     };
     
 }
