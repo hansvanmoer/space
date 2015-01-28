@@ -34,12 +34,17 @@ void loadModule(){
     try{
         ModuleLoader moduleLoader;
         moduleLoader.addModules(modulesPath);
-        Module module{moduleLoader.loadModule("space")};
-        std::cout << "loading module " << module.id() << std::endl;
-        std::list<Core::Path> paths = module.paths();
+        Module *module{moduleLoader.loadModule("space")};
+        std::cout << "loading module " << module->id() << std::endl;
+        std::list<Core::Path> paths = module->paths();
         for(auto i = paths.begin(); i != paths.end(); ++i){
             std::cout << (*i) << std::endl;
         }
+        std::list<const Core::Language *> languages = module->languages();
+        for(auto i = languages.begin(); i != languages.end(); ++i){
+            std::cout << "language " << (*i)->id() << ", parent: " << (*i)->parent() << std::endl;
+        }
+        delete module;
     }catch(ModuleException &e){
         std::cout << "unable to load module" << std::endl << e.what() << std::endl;
         throw;

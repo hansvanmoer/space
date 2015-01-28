@@ -20,20 +20,20 @@ namespace Core{
     
     class Language{
     public:
-        Language(const Language *parent, const std::string id, UnicodeString name, const std::locale &locale);
+        Language(const Language *parent, const std::string id, std::u32string name, const std::locale &locale);
         
         const Language *parent() const;
         
         const std::string &id() const;
         
-        const UnicodeString &name() const;
+        const std::u32string &name() const;
         
         const std::locale &locale() const;
     
     private:
         const Language *parent_;
         std::string id_;
-        UnicodeString name_;
+        std::u32string name_;
         const std::locale locale_;
     
         Language(const Language &) = delete;

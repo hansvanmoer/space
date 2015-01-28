@@ -11,5 +11,13 @@
         "id" : "en_us",
         "name" : "English (United States)",
         "parent" : "en"
+    },
+    {
+        "id" : "fr",
+        "name" : "French",
+        "locale" : {
+            "windows" : "en-US",
+            "posix" : "en_US.UTF8"
+        }
     }
 ]

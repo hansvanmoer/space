@@ -3,14 +3,14 @@
 
 using namespace Core;
 
-Language::Language(const Language *parent, std::string id, UnicodeString name, const std::locale& locale) : parent_(parent), id_(id), name_(name), locale_(locale){
+Language::Language(const Language *parent, std::string id, std::u32string name, const std::locale& locale) : parent_(parent), id_(id), name_(name), locale_(locale){
 }
 
 const std::locale& Language::locale() const {
     return locale_;
 }
 
-const UnicodeString& Language::name() const {
+const std::u32string& Language::name() const {
     return name_;
 }
 

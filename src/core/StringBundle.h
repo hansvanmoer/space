@@ -12,11 +12,12 @@
 #include "Path.h"
 #include "Unicode.h"
 
+#include <string>
 #include <locale>
 
 namespace Core{
     
-    class StringBundle : public ResourceBundle<std::string, Unicode::String>{
+    class StringBundle : public ResourceBundle<std::string, std::u32string>{
     public:
         StringBundle();
         ~StringBundle();

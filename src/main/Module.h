@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include <set>
 
 namespace Game{
     
@@ -32,10 +33,24 @@ namespace Game{
         ModuleDescriptor();
     };
     
+    struct LanguageDescriptor{
+        std::string id;
+        std::string parentId;
+        std::string name;
+        std::string localeName;
+        
+        LanguageDescriptor();
+        
+    };
+    
+    bool operator<(const LanguageDescriptor &first, const LanguageDescriptor &second);
+    
     class Module{
     public:    
         
-        Module(const ModuleDescriptor *descriptor, const std::list<const ModuleDescriptor *> &dependencies);
+        Module(const ModuleDescriptor *descriptor, const std::list<const ModuleDescriptor *> &dependencies, const std::list<const Core::Language *> &languages);
+                
+        ~Module();
         
         std::string id() const;
         
@@ -43,31 +58,39 @@ namespace Game{
         
         std::list<Core::Path> paths() const;
                 
+        const std::list<const Core::Language *> &languages() const;
+        
     private:
         const ModuleDescriptor *descriptor_;
         std::list<const ModuleDescriptor *> dependencies_;
+        std::list<const Core::Language *> languages_;
     };
     
     class ModuleLoader{
     public:
         ModuleLoader();
         
-        
         void addModule(Core::Path modulePath);
         
         void addModules(Core::Path modulesFolder);
         
-        Module loadModule(std::string moduleId) const;
+        Module *loadModule(std::string moduleId) const;
         
         ~ModuleLoader();
     private:
         std::map<std::string, const ModuleDescriptor *> modules_;
         
-        void readModuleDescriptor(Core::Path modulePath, ModuleDescriptor &descriptor);
+        void readModuleDescriptor(Core::Path modulePath, ModuleDescriptor &descriptor) const;
         
         std::list<const ModuleDescriptor *> dependencies(std::string moduleId) const;
                 
         void dependencies(std::string moduleId, std::list<const ModuleDescriptor *> &dependencies) const;
+        
+        std::locale createLocale(std::string name) const;
+        
+        void readLanguageDescriptors(Core::Path languagePath, std::set<LanguageDescriptor> &descriptors) const;
+        
+        void createLanguages(std::set<LanguageDescriptor> descriptors, const Core::StringBundle &labels, std::set<const Core::Language *> &languages) const;
         
         ModuleLoader(const ModuleLoader &) = delete;
         ModuleLoader &operator=(const ModuleLoader &) = delete;
