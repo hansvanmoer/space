@@ -16,6 +16,8 @@ using Core::Path;
 using Core::Language;
 using Core::StringBundle;
 
+const std::string ModuleLoader::NAME{"moduleLoader"};
+
 ModuleException::ModuleException(std::string msg) : std::runtime_error{msg}{
 }
 
@@ -145,9 +147,10 @@ void ModuleLoader::createLanguages(std::set<LanguageDescriptor> descriptors, con
     }
 }
 
-ModuleLoader::ModuleLoader() : modules_(){};
+ModuleLoader::ModuleLoader() : modules_(), activeModule_(){};
 
 ModuleLoader::~ModuleLoader(){
+    delete activeModule_;
     for(auto i = modules_.begin(); i != modules_.end(); ++i){
         delete i->second;
     }
@@ -207,7 +210,11 @@ bool compareLanguage(const Language *first, const Language *second){
     return first->name() < second->name();
 };
 
-Module *ModuleLoader::loadModule(std::string moduleId) const{
+const Module *ModuleLoader::activeModule() const{
+    return activeModule_;
+};
+
+const Module *ModuleLoader::loadModule(std::string moduleId){
     auto found = modules_.find(moduleId);
     if(found == modules_.end()){
         throw ModuleException{Core::toString("no module found for id '", moduleId,"'")};
@@ -242,7 +249,9 @@ Module *ModuleLoader::loadModule(std::string moduleId) const{
             languageList.push_back(*i);
         }
         languageList.sort(compareLanguage);
-        return new Module{found->second, modules, languageList};
+        delete activeModule_;
+        activeModule_ = new Module{found->second, modules, languageList};
+        return activeModule_;
     }
 };
 

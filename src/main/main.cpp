@@ -13,6 +13,8 @@ using namespace Game;
 using Core::Path;
 using Core::Language;
 
+const std::string DEFAULT_MODULE{"space"};
+
 bool startSubSystems(int argCount, const char **args){
     std::cout << "starting subsystems" << std::endl;
     try{
@@ -29,22 +31,13 @@ bool startSubSystems(int argCount, const char **args){
     }
 }
 
-void loadModule(){
+void loadModule(std::string moduleName){
+    ApplicationSystem<ModuleLoader>::initialize();
+    ModuleLoader &moduleLoader = ApplicationSystem<ModuleLoader>::instance();
     Path modulesPath{ApplicationSystem<DataSystem>::instance().dataPath().child("module")};
     try{
-        ModuleLoader moduleLoader;
         moduleLoader.addModules(modulesPath);
-        Module *module{moduleLoader.loadModule("space")};
-        std::cout << "loading module " << module->id() << std::endl;
-        std::list<Core::Path> paths = module->paths();
-        for(auto i = paths.begin(); i != paths.end(); ++i){
-            std::cout << (*i) << std::endl;
-        }
-        std::list<const Core::Language *> languages = module->languages();
-        for(auto i = languages.begin(); i != languages.end(); ++i){
-            std::cout << "language " << (*i)->id() << ", parent: " << (*i)->parent() << std::endl;
-        }
-        delete module;
+        moduleLoader.loadModule("space");
     }catch(ModuleException &e){
         std::cout << "unable to load module" << std::endl << e.what() << std::endl;
         throw;

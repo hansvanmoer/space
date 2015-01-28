@@ -64,20 +64,31 @@ namespace Game{
         const ModuleDescriptor *descriptor_;
         std::list<const ModuleDescriptor *> dependencies_;
         std::list<const Core::Language *> languages_;
+        
+        Module(const Module &) = delete;
+        Module &operator=(const Module &) = delete;
     };
     
     class ModuleLoader{
     public:
+        
+        static const std::string NAME;
+        
         ModuleLoader();
         
         void addModule(Core::Path modulePath);
         
         void addModules(Core::Path modulesFolder);
         
-        Module *loadModule(std::string moduleId) const;
+        const Module *loadModule(std::string moduleId);
+        
+        const Module *activeModule() const;
         
         ~ModuleLoader();
     private:
+        
+        const Module *activeModule_;
+        
         std::map<std::string, const ModuleDescriptor *> modules_;
         
         void readModuleDescriptor(Core::Path modulePath, ModuleDescriptor &descriptor) const;
