@@ -56,17 +56,33 @@ namespace Game{
         
         Core::Path path() const;
         
-        std::list<Core::Path> paths() const;
+        const std::list<Core::Path> &paths() const;
                 
         const std::list<const Core::Language *> &languages() const;
-        
     private:
         const ModuleDescriptor *descriptor_;
         std::list<const ModuleDescriptor *> dependencies_;
+        std::list<Core::Path> paths_;
         std::list<const Core::Language *> languages_;
         
         Module(const Module &) = delete;
         Module &operator=(const Module &) = delete;
+    };
+    
+    class ModuleResources{
+    public:
+                
+        ModuleResources(const Module &module, const Core::Language *language);
+        
+        void load(Core::Path relativePath, Core::StringBundle &bundle);
+        
+    private:
+        const Module &module_;
+        const Core::Language *language_;
+   
+        ModuleResources(const ModuleResources &) = delete;
+        ModuleResources &operator=(const ModuleResources &) = delete;
+        
     };
     
     class ModuleLoader{
@@ -106,6 +122,7 @@ namespace Game{
         ModuleLoader(const ModuleLoader &) = delete;
         ModuleLoader &operator=(const ModuleLoader &) = delete;
     };
+    
     
 }
 

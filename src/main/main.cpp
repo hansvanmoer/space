@@ -88,7 +88,6 @@ int main(int argCount, const char **args){
         std::cout << "unable to load application settings: " << e.what() << std::endl;
         std::cout << "loading defaults" << std::endl;
     }
-    loadModule();
     //startEventLoop();
     
     try{

@@ -255,7 +255,11 @@ const Module *ModuleLoader::loadModule(std::string moduleId){
     }
 };
 
-Module::Module(const ModuleDescriptor* descriptor, const std::list<const ModuleDescriptor*>& dependencies, const std::list<const Language *> &languages) : descriptor_(descriptor), dependencies_(dependencies), languages_(languages){};
+Module::Module(const ModuleDescriptor* descriptor, const std::list<const ModuleDescriptor*>& dependencies, const std::list<const Language *> &languages) : descriptor_(descriptor), dependencies_(dependencies), languages_(languages), paths_(){
+    for(auto i : dependencies){
+        paths_.push_back(i->path);
+    }
+};
 
 Module::~Module(){
     for(auto i = languages_.begin(); i != languages_.end(); ++i){
@@ -275,10 +279,31 @@ const std::list<const Language *> &Module::languages() const{
     return languages_;
 };
 
-std::list<Core::Path> Module::paths() const{
-    std::list<Core::Path> paths;
-    for(auto i = dependencies_.begin(); i != dependencies_.end(); ++i){
-        paths.push_back((*i)->path);
-    }
-    return paths;
+const std::list<Path> &Module::paths() const{
+    return paths_;
 }
+
+ModuleResources::ModuleResources(const Module& module, const Language* language) : module_(module), language_(language){};
+
+void ModuleResources::load(Core::Path relativePath, Core::StringBundle& bundle) {
+    std::list<std::string> suffixes;
+    const Language *language = language_;
+    while(language){
+        suffixes.push_front(std::string{"_"}+language_->id());
+        language = language->parent();
+    }
+    std::ifstream input;
+    suffixes.push_front(std::string{""});
+    for(auto i : module_.paths()){
+        for(auto j : suffixes){
+            Path path{i.data()+j};
+            if(path.fileExists()){
+                std::cout << "loading labels from file " << path << std::endl;
+                path.openFile(input);
+                bundle.load(input);
+            }
+        }
+    }
+}
+
+
