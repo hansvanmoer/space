@@ -18,7 +18,11 @@ using Writer = JSON::PrettyWriter<>;
 SettingsException::SettingsException(std::string message) : std::runtime_error(message){
 }
 
-VideoSettings::VideoSettings() : antialiasingLevel(4) {}
+VideoSettings::VideoSettings() : antialiasingLevel(4),framesPerSecond(60) {
+}
+
+ControlSettings::ControlSettings() : zoomSpeed(1.0){}
+
 
 AudioSettings::AudioSettings() : masterVolume(1.f), ambientVolume(1.f),effectVolume(1.f), uiVolume(1.f){};
 
@@ -29,6 +33,9 @@ ApplicationSettings::ApplicationSettings() : videoSettings(), audioSettings(), w
 void validateVideoSettings(const VideoSettings &settings){
     if(settings.antialiasingLevel < 0 || settings.antialiasingLevel > 4){
         throw SettingsException("antialiasing level should be set in the range of 0 - 4");
+    }
+    if(settings.framesPerSecond < 10 || settings.framesPerSecond > 100){
+        throw SettingsException("frames per second should be set in the range of 10 - 100");
     }
 }
 
@@ -43,11 +50,29 @@ void validateWindowSettings(const WindowSettings &settings){
 
 void readVideoSettings(Object node, VideoSettings &settings){
     settings.antialiasingLevel=static_cast<int>(node.getNumber("antialisingLevel"));
+    settings.framesPerSecond = static_cast<int>(node.getNumber("framesPerSecond"));
 };
 
 void writeVideoSettings(Writer &writer, const VideoSettings &settings){
     writer.beginObject();
     writer.beginField("antialisingLevel").writeNumber(settings.antialiasingLevel).endField();
+    writer.beginField("framesPerSecond").writeNumber(settings.framesPerSecond).endField();
+    writer.endObject();
+};
+
+void validateControlSettings(const ControlSettings &settings){
+    if(settings.zoomSpeed <= 0){
+        throw SettingsException("window width should be > 0");
+    }
+}
+
+void readControlSettings(Object node, ControlSettings &settings){
+    settings.zoomSpeed=static_cast<double>(node.getNumber("zoomSpeed"));
+};
+
+void writeVideoSettings(Writer &writer, const ControlSettings &settings){
+    writer.beginObject();
+    writer.beginField("zoomSpeed").writeNumber(settings.zoomSpeed).endField();
     writer.endObject();
 };
 
@@ -100,12 +125,14 @@ void validateApplicationSettings(const ApplicationSettings &settings){
     validateAudioSettings(settings.audioSettings);
     validateVideoSettings(settings.videoSettings);
     validateWindowSettings(settings.windowSettings);
+    validateControlSettings(settings.controlSettings);
 }
 
 void readApplicationSettings(Object node, ApplicationSettings &settings){
     readWindowSettings(node.getObject("windowSettings"), settings.windowSettings);
     readAudioSettings(node.getObject("audioSettings"), settings.audioSettings);
     readVideoSettings(node.getObject("videoSettings"), settings.videoSettings);
+    readControlSettings(node.getObject("controlSettings"), settings.controlSettings);
 };
 
 void writeApplicationSettings(Writer &writer, const ApplicationSettings &settings){
@@ -117,6 +144,9 @@ void writeApplicationSettings(Writer &writer, const ApplicationSettings &setting
     writer.endField();
     writer.beginField("videoSettings");
     writeVideoSettings(writer, settings.videoSettings);
+    writer.endField();
+    writer.beginField("controlSettings");
+    writeVideoSettings(writer, settings.controlSettings);
     writer.endField();
 }
 

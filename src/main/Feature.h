@@ -9,15 +9,12 @@
 #define	FEATURE_H
 
 #include "Metrics.h"
+#include "Graphics.h"
 
 #include <set>
 
 namespace Game{
-    
-    using Scalar = double;
-    
-    using Position = Core::Point<Scalar>;
-    
+
     class Feature{
     public:
         virtual ~Feature();
@@ -25,6 +22,7 @@ namespace Game{
         const Position &position() const;
 
         void position(Position position);
+                
     protected:
         Feature();
     private:

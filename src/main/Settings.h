@@ -19,6 +19,7 @@ namespace Game{
     
     struct VideoSettings{
         int antialiasingLevel;
+        int framesPerSecond;
         
         VideoSettings();
     };
@@ -28,6 +29,12 @@ namespace Game{
         bool fullScreen;
         
         WindowSettings();
+    };
+    
+    struct ControlSettings{
+        double zoomSpeed;
+        
+        ControlSettings();
     };
     
     struct AudioSettings{
@@ -43,6 +50,7 @@ namespace Game{
         VideoSettings videoSettings;
         WindowSettings windowSettings;
         AudioSettings audioSettings;
+        ControlSettings controlSettings;
         
         ApplicationSettings();
     };
