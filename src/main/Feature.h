@@ -25,6 +25,7 @@ namespace Game{
                 
     protected:
         Feature();
+        Feature(Position position);
     private:
         Position position_;
         
@@ -89,13 +90,14 @@ namespace Game{
     public:
         virtual ~OrbitalSystem();
         
-        void update(const Position &position);
+        void update();
         
         Anchor attach(Orbit *orbit);
         
         bool detach(Orbit *orbit);
     protected:
         OrbitalSystem();
+        OrbitalSystem(Position position);
     private:
         std::set<Orbit *> orbits_;
     };

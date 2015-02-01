@@ -5,17 +5,11 @@
 
 using namespace Game;
 
-constexpr Scalar pi(){
-    return atan(1.)*4;
-};
-
-constexpr Scalar angularMax(){
-    return atan(1.)*8;
-};
-
 const Scalar RADIAL_MAX = atan(1.)*4;
 
 Feature::Feature() : position_(){}
+
+Feature::Feature(Position position) : position_(position){};
 
 Feature::~Feature(){
 }
@@ -60,9 +54,11 @@ void CircularOrbit::update(const Position& anchor){
 
 OrbitalSystem::OrbitalSystem() : orbits_(){}
 
-void OrbitalSystem::update(const Position& position){
+OrbitalSystem::OrbitalSystem(Position position) : Feature(position), orbits_(){}
+
+void OrbitalSystem::update(){
     for(auto orbit : orbits_){
-        orbit->update(position);
+        orbit->update(position());
     }
 };
 

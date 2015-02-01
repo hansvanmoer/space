@@ -24,7 +24,7 @@ void Session::ScrollRegion::check(int x, int y){
     scrolling = bounds.contains(x,y);
 }
 
-Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), settings_(), running_(false), scrollRegions(), starResources_(), star_() {}
+Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), settings_(), running_(false), scrollRegions(), starResources_(), planetResources_(), starSystem_() {}
 
 void Session::startEventLoop() {
     using clock = std::chrono::high_resolution_clock;
@@ -51,6 +51,7 @@ void Session::startEventLoop() {
     time lastFrame = clock::now();
     while (running_.load()) {
         handleEvents();
+        starSystem_->update();
         draw();
         window_.render();
         time afterRender = clock::now();
@@ -71,16 +72,8 @@ void Session::startEventLoop() {
 void Session::draw() {
     glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
-    /*glColor4f(1.f, 0.f, 0.f, 1.f);
-    
-    glLoadIdentity();
-    glBegin(GL_TRIANGLES);
-    glVertex3d(0., 0., 0.);
-    glVertex3d(100., 0., 0.);
-    glVertex3d(100., 100., 0.);
-    glEnd();*/
     glMatrixMode(GL_MODELVIEW);
-    star_->draw();
+    starSystem_->draw();
     viewPoint_.loadProjectionMatrix();
 }
 
@@ -157,10 +150,26 @@ void Session::loadTestScenario() {
                 std::cout << "unable to load resources from folder " << folder << " : " << e.what() << "... skipping" << std::endl;
             }
         }
+        folders = path.child("resource").child("planet").childFolders();
+        for(auto folder : folders){
+            try{
+                planetResources_.load(folder);
+            }catch(Core::ResourceException &e){
+                std::cout << "unable to load resources from folder " << folder << " : " << e.what() << "... skipping" << std::endl;
+            }
+        }
     }
-    star_ = new Star{U"Alpha Centauri A",Position{0,0},100.,starResources_["main_sequence_yellow_01"]};
+    starSystem_ = new StarSystem();
+    starSystem_->star = new Star{starSystem_, U"Alpha Centauri A",Position{0,0},2000.,starResources_["main_sequence_yellow_01"]};
+    starSystem_->add(new Planet{starSystem_, U"1 Alpha Centauri A", 50., planetResources_["gas_giant_01"]}, 3200., (2*pi()) / 6000., 3*pi()/4);
+    Planet *planet = new Planet{starSystem_, U"2 Alpha Centauri A ", 200., planetResources_["gas_giant_01"]};
+    planet->add(new Planet{starSystem_, U"Moon ", 20., planetResources_["gas_giant_01"]}, 310., (2*pi()) / 2000., pi());
+    starSystem_->add(planet, 3700., -(2*pi()) / 10000., 0);
+    starSystem_->add(new Planet{starSystem_, U"3 Alpha Centauri A", 75., planetResources_["gas_giant_01"]}, 2750., (2*pi()) / 2000., 6*pi()/7);
+    starSystem_->add(new Planet{starSystem_, U"4 Alpha Centauri A", 60., planetResources_["gas_giant_01"]}, 5000., (2*pi()) / 30000., 1*pi()/2);
+
 }
 
 void Session::unloadTestScenario(){
-    delete star_;
+    delete starSystem_;
 }

@@ -18,7 +18,7 @@
 
 namespace Game{
         
-    class StarResource{
+    class OrbitalBodyResource{
     public:
         
         std::string id;
@@ -27,34 +27,84 @@ namespace Game{
         
         Texture tacticalTexture;    
         
-        StarResource(std::string id);
+        OrbitalBodyResource(std::string id);
         
     private:
-        StarResource(const StarResource &) = delete;
-        StarResource &operator=(const StarResource &) = delete;
+        OrbitalBodyResource(const OrbitalBodyResource &) = delete;
+        OrbitalBodyResource &operator=(const OrbitalBodyResource &) = delete;
     };
-    
-    class StarResourceLoader : public Core::ResourceBundle<std::string, StarResource>{
+        
+    class OrbitalBodyResourceLoader : public Core::ResourceBundle<std::string, OrbitalBodyResource>{
     public:
         
         void load(Core::Path path);
                 
     };
-        
+    
+    class StarSystem;
+    
+    using StarResource = OrbitalBodyResource;
+
+    using StarResourceLoader = OrbitalBodyResourceLoader;    
+    
     class Star : public OrbitalSystem{
     public:
+        StarSystem *system;
         std::u32string name;
-        Position position;
-        Scalar size;        
+        Scalar radius;        
         const StarResource *resource;
         
-        Star(std::u32string name, Position position, Scalar size, const StarResource *resource);
+        Star(StarSystem *system, std::u32string name, Position position, Scalar radius, const StarResource *resource);
         
         void draw();
         
     private:
         Star(const Star &) = delete;
         Star &operator=(const Star &) = delete;
+    };
+    
+    using PlanetResource = OrbitalBodyResource;
+
+    using PlanetResourceLoader = OrbitalBodyResourceLoader;      
+    
+    class Planet : public OrbitalSystem{
+    public:
+        StarSystem *system;
+        std::u32string name;
+        Scalar radius;        
+        const PlanetResource *resource;
+        std::list<Planet *> moons;
+        
+        Planet(StarSystem *system, std::u32string name, Scalar radius, const PlanetResource *resource);
+        
+        ~Planet();
+        
+        void draw();
+        
+        void add(Planet *moon, Scalar radius, Scalar radialSpeed, Scalar radialAngle = 0.);
+        
+    private:
+        Planet(const Planet &) = delete;
+        Planet &operator=(const Planet &) = delete;
+    };
+    
+    class StarSystem{
+    public:    
+        Star *star;
+        std::list<Planet *> planets;
+        
+        StarSystem();
+        
+        void draw();
+        
+        void update();
+        
+        void add(Planet *planet, Scalar radius, Scalar radialSpeed, Scalar radialAngle = 0.);
+        
+        ~StarSystem();
+    private:
+        StarSystem(const StarSystem &) = delete;
+        StarSystem &operator=(const StarSystem &) = delete;
     };
     
 }

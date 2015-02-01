@@ -62,8 +62,9 @@ namespace Game{
         ScrollRegion scrollRegions[8];
         
         StarResourceLoader starResources_;
+        PlanetResourceLoader planetResources_;
         
-        Star *star_;
+        StarSystem *starSystem_;
     };
     
 }
