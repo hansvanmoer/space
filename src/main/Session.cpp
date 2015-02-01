@@ -9,14 +9,21 @@
 
 using namespace Game;
 
-Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), running_(false){}
+const Scalar Session::MIN_ZOOM_LEVEL{0.00001};
+
+const Scalar Session::MAX_ZOOM_LEVEL{0.1};
+
+Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), settings_(), running_(false), cumulativeZoomDelta_(0) {
+}
 
 void Session::startEventLoop() {
     using clock = std::chrono::high_resolution_clock;
     using duration = typename clock::duration;
     using time = typename clock::time_point;
-    
-    viewPoint_ = ViewPoint{Position{0.25, 0.}, 0.5, ViewMode::STRATEGIC};
+
+    settings_ = ApplicationSystem<SettingsSystem>::instance().applicationSettings();
+    viewPoint_ = ViewPoint{Position
+        {0.25, 0.}, 0.5, ViewMode::STRATEGIC};
     std::string title{"Main window"};
     window_.open(Core::UnicodeString{title.begin(), title.end()}, Core::Bounds<int>{0, 800, 0, 600}, 24);
     window_.activateContext();
@@ -50,21 +57,39 @@ void Session::draw() {
     glLoadIdentity();
     glBegin(GL_TRIANGLES);
     glVertex3d(0., 0., 0.);
-    glVertex3d(1., 0., 0.);
-    glVertex3d(1., 1., 0.);
+    glVertex3d(100., 0., 0.);
+    glVertex3d(100., 100., 0.);
     glEnd();
     viewPoint_.loadProjectionMatrix();
 }
 
+const int maxCumulativeMouseWheelDelta = 1000;
+
+const int mouseWheelDecay = 1000;
+
+const Scalar cumulativeMouseWheelFactor = 4.0;
+
 void Session::handleEvents() {
+    int mouseWheelDelta = 0;
     sf::Event event;
     while (window_.nextEvent(event)) {
         if (event.type == sf::Event::Closed) {
             running_.store(false);
         } else if (event.type == sf::Event::Resized) {
             glViewport(0, 0, event.size.width, event.size.height);
-        } else if(event.type == sf::Event::MouseWheelMoved){
-            
+        } else if (event.type == sf::Event::MouseWheelMoved) {
+            mouseWheelDelta += event.mouseWheel.delta;
         }
     }
+    zoom(mouseWheelDelta);
+}
+
+void Session::zoom(int delta) {
+    Scalar newZoom = viewPoint_.zoom*=pow(2.0, delta);
+    if (newZoom > MAX_ZOOM_LEVEL) {
+        newZoom = MAX_ZOOM_LEVEL;
+    } else if (newZoom < MIN_ZOOM_LEVEL) {
+        newZoom = MIN_ZOOM_LEVEL;
+    }
+    viewPoint_.zoom = newZoom;
 }
