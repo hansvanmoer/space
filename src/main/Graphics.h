@@ -32,8 +32,6 @@ namespace Game{
         void loadProjectionMatrix() const;
     };
     
-    
-    
 }
 
 #endif	/* GRAPHICS_H */

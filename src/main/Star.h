@@ -8,41 +8,53 @@
 #ifndef STAR_H
 #define	STAR_H
 
-#include "Feature.h"
-
-#include "Metrics.h"
-
 #include <string>
 
-#include "SFML/Graphics/Image.hpp"
+#include "Feature.h"
+#include "Metrics.h"
+#include "Path.h"
+#include "Resource.h"
+#include "Texture.h"
 
 namespace Game{
         
-    class StarGraphics{
+    class StarResource{
     public:
+        
         std::string id;
-        sf::Image strategicImage;
-        sf::Image tacticalImage;
-        sf::Image iconImage;
+        
+        Texture strategicTexture;
+        
+        Texture tacticalTexture;    
+        
+        StarResource(std::string id);
+        
     private:
-        StarGraphics(const StarGraphics &) = delete;
-        StarGraphics &operator=(const StarGraphics &) = delete;
+        StarResource(const StarResource &) = delete;
+        StarResource &operator=(const StarResource &) = delete;
+    };
+    
+    class StarResourceLoader : public Core::ResourceBundle<std::string, StarResource>{
+    public:
+        
+        void load(Core::Path path);
+                
     };
         
     class Star : public OrbitalSystem{
     public:
         std::u32string name;
-        const StarGraphics *graphics;
         Position position;
-        Scalar size;
+        Scalar size;        
+        const StarResource *resource;
+        
+        Star(std::u32string name, Position position, Scalar size, const StarResource *resource);
+        
+        void draw();
+        
     private:
         Star(const Star &) = delete;
         Star &operator=(const Star &) = delete;
-    };
-    
-    class Galaxy{
-    public:
-        std::list<Star *> stars;
     };
     
 }

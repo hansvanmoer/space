@@ -4,10 +4,15 @@
 #include <thread>
 #include <iostream>
 #include <string>
+#include <list>
 
 #include "Settings.h"
 
+#include "Module.h"
+
 using namespace Game;
+
+using Core::Path;
 
 const Scalar Session::MIN_ZOOM_LEVEL{0.00001};
 
@@ -19,13 +24,13 @@ void Session::ScrollRegion::check(int x, int y){
     scrolling = bounds.contains(x,y);
 }
 
-Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), settings_(), running_(false), scrollRegions() {}
+Session::Session() : viewPoint_(Position{}, 0.1, ViewMode::STRATEGIC), window_(), settings_(), running_(false), scrollRegions(), starResources_(), star_() {}
 
 void Session::startEventLoop() {
     using clock = std::chrono::high_resolution_clock;
     using duration = typename clock::duration;
     using time = typename clock::time_point;
-
+    
     settings_ = ApplicationSystem<SettingsSystem>::instance().applicationSettings();
     viewPoint_ = ViewPoint{Position
         {0.25, 0.}, 0.5, ViewMode::STRATEGIC};
@@ -33,8 +38,13 @@ void Session::startEventLoop() {
     window_.open(Core::UnicodeString{title.begin(), title.end()}, Core::Bounds<int>{0, 800, 0, 600}, 24);
     window_.activateContext();
     std::cout << "running open gl version " << glGetString(GL_VERSION) << std::endl;
-    WindowEvent event;
 
+    glEnable(GL_TEXTURE_2D);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    loadTestScenario();
+    
+    WindowEvent event;
     running_.store(true);
     VideoSettings videoSettings = ApplicationSystem<SettingsSystem>::instance().applicationSettings().videoSettings;
     duration waitBetweenFrames = std::chrono::duration_cast<duration>(std::chrono::milliseconds{1000 / videoSettings.framesPerSecond});
@@ -53,19 +63,24 @@ void Session::startEventLoop() {
             lastFrame = afterRender;
         }
     }
+    
+    glDisable(GL_TEXTURE_2D);
+    unloadTestScenario();
 }
 
 void Session::draw() {
     glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glColor4f(1.f, 0.f, 0.f, 1.f);
-    glMatrixMode(GL_MODELVIEW);
+    /*glColor4f(1.f, 0.f, 0.f, 1.f);
+    
     glLoadIdentity();
     glBegin(GL_TRIANGLES);
     glVertex3d(0., 0., 0.);
     glVertex3d(100., 0., 0.);
     glVertex3d(100., 100., 0.);
-    glEnd();
+    glEnd();*/
+    glMatrixMode(GL_MODELVIEW);
+    star_->draw();
     viewPoint_.loadProjectionMatrix();
 }
 
@@ -126,4 +141,26 @@ void Session::zoom(int delta) {
         newZoom = MIN_ZOOM_LEVEL;
     }
     viewPoint_.zoom = newZoom;
+}
+
+void Session::loadTestScenario() {
+    const Module *module = ApplicationSystem<ModuleLoader>::instance().activeModule();
+    const std::list<Path> &paths = module->paths();
+    std::cout << "loading resources for module " << module->id() << std::endl;
+    std::cout << "loading star resources" << std::endl;
+    for(auto path : paths){
+        std::list<Path> folders = path.child("resource").child("star").childFolders();
+        for(auto folder : folders){
+            try{
+                starResources_.load(folder);
+            }catch(Core::ResourceException &e){
+                std::cout << "unable to load resources from folder " << folder << " : " << e.what() << "... skipping" << std::endl;
+            }
+        }
+    }
+    star_ = new Star{U"Alpha Centauri A",Position{0,0},100.,starResources_["main_sequence_yellow_01"]};
+}
+
+void Session::unloadTestScenario(){
+    delete star_;
 }

@@ -81,11 +81,8 @@ bool Path::folderExists() const {
     if (dir) {
         closedir(dir);
         return true;
-    } else if (ENOENT == errno) {
+    } else{
         return false;
-    } else {
-        //this is bad...
-        throw PathException("unable to check if folder exists");
     }
 #endif
 #ifdef OS_WINDOWS
@@ -147,14 +144,18 @@ std::list<Path> Path::childFolders() const{
     std::list<Path> children;
 #ifdef OS_UNIX_LIKE
     DIR *handle = opendir(data_.data());
-    struct dirent *child = readdir(handle);
-    while(child != NULL){
-        if(child->d_type == DT_DIR && child->d_name[0] != '.'){
-            children.push_back(Path{*this, std::string{child->d_name}});
+    if(handle){
+        struct dirent *child = readdir(handle);
+        while(child != NULL){
+            if(child->d_type == DT_DIR && child->d_name[0] != '.'){
+                children.push_back(Path{*this, std::string{child->d_name}});
+            }
+            child = readdir(handle);
         }
-        child = readdir(handle);
+        closedir(handle);
+    }else{
+        return std::list<Path>{};
     }
-    closedir(handle);
 #endif
 #ifdef OS_WINDOWS
     //TODO

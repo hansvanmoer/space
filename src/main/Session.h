@@ -12,6 +12,8 @@
 #include "Window.h"
 #include "Settings.h"
 
+#include "Star.h"
+
 #include <atomic>
 
 namespace Game{
@@ -49,11 +51,19 @@ namespace Game{
         
         void resize(int width, int height);
         
+        void loadTestScenario();
+        
+        void unloadTestScenario();
+        
         ViewPoint viewPoint_;
         Window window_;
         ApplicationSettings settings_;
         std::atomic<bool> running_;
         ScrollRegion scrollRegions[8];
+        
+        StarResourceLoader starResources_;
+        
+        Star *star_;
     };
     
 }

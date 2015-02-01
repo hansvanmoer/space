@@ -40,6 +40,10 @@ namespace Core {
         };
 
         void check(std::unordered_map<Key, const Resource *> & resources, const Key &key) {
+            auto found = resources.find(key);
+            if(found != resources.end()){
+                delete found->second;
+            }
         };
 
         void destroy(const Resource *resource) {
@@ -72,11 +76,16 @@ namespace Core {
         bool contains(Key key) const {
             return resources_.find(key) != resources_.end();
         };
-
-        ~ResourceBundle() {
+        
+        void unloadAll(){
             for (auto i = resources_.begin(); i != resources_.end(); ++i) {
                 ResourcePolicy::destroy(i->second);
             }
+            resources_.clear();
+        };
+
+        ~ResourceBundle() {
+            unloadAll();
         };
 
     private:
