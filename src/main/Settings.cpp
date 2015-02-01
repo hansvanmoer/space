@@ -21,7 +21,7 @@ SettingsException::SettingsException(std::string message) : std::runtime_error(m
 VideoSettings::VideoSettings() : antialiasingLevel(4),framesPerSecond(60) {
 }
 
-ControlSettings::ControlSettings() : zoomSpeed(1.0){}
+ControlSettings::ControlSettings() : zoomSpeed(1.0), mouseScrollSpeed(0.01), keyScrollSpeed(0.01){}
 
 
 AudioSettings::AudioSettings() : masterVolume(1.f), ambientVolume(1.f),effectVolume(1.f), uiVolume(1.f){};
@@ -62,17 +62,27 @@ void writeVideoSettings(Writer &writer, const VideoSettings &settings){
 
 void validateControlSettings(const ControlSettings &settings){
     if(settings.zoomSpeed <= 0){
-        throw SettingsException("window width should be > 0");
+        throw SettingsException("zoom speed should be > 0");
+    }
+    if(settings.mouseScrollSpeed <= 0 || settings.mouseScrollSpeed > 1){
+        throw SettingsException("mouse scroll speed should be > 0");
+    }
+    if(settings.keyScrollSpeed <= 0 || settings.keyScrollSpeed > 1){
+        throw SettingsException("key scroll speed should be > 0");
     }
 }
 
 void readControlSettings(Object node, ControlSettings &settings){
     settings.zoomSpeed=static_cast<double>(node.getNumber("zoomSpeed"));
+    settings.mouseScrollSpeed=static_cast<double>(node.getNumber("mouseScrollSpeed"));
+    settings.keyScrollSpeed=static_cast<double>(node.getNumber("keyScrollSpeed"));
 };
 
 void writeVideoSettings(Writer &writer, const ControlSettings &settings){
     writer.beginObject();
     writer.beginField("zoomSpeed").writeNumber(settings.zoomSpeed).endField();
+    writer.beginField("mouseScrollSpeed").writeNumber(settings.mouseScrollSpeed).endField();
+    writer.beginField("keyScrollSpeed").writeNumber(settings.keyScrollSpeed).endField();
     writer.endObject();
 };
 

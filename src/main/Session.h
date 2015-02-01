@@ -31,17 +31,29 @@ namespace Game{
         
     private:
 
+        struct ScrollRegion{
+            bool scrolling;
+            Core::Bounds<int> bounds;
+            Core::Point<Scalar> vector;
+            
+            ScrollRegion();
+            
+            void check(int x,int y);
+        };
+        
         void handleEvents();
         
         void zoom(int delta);
 
         void draw();
         
+        void resize(int width, int height);
+        
         ViewPoint viewPoint_;
         Window window_;
         ApplicationSettings settings_;
         std::atomic<bool> running_;
-        int cumulativeZoomDelta_;
+        ScrollRegion scrollRegions[8];
     };
     
 }

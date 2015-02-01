@@ -24,6 +24,26 @@ namespace Core{
         bool operator!=(const Point<Scalar> &p) const{
             return p.x != x || p.y != y;
         };
+        
+        template<typename Scalar2> Point<Scalar> operator+=(const Point<Scalar2> &p){
+            x+=static_cast<Scalar>(p.x);
+            y+=static_cast<Scalar>(p.y);
+            return *this;
+        };
+        
+        template<typename Scalar2> Point<Scalar> operator-=(const Point<Scalar2> &p){
+            x-=static_cast<Scalar>(p.x);
+            y-=static_cast<Scalar>(p.y);
+            return *this;
+        };
+    };
+    
+    template<typename Scalar> Point<Scalar> operator+(const Point<Scalar> &a, const Point<Scalar> &b){
+        return Point<Scalar>{a.x+b.x, a.y+b.y};
+    };
+    
+    template<typename Scalar> Point<Scalar> operator-(const Point<Scalar> &a, const Point<Scalar> &b){
+        return Point<Scalar>{a.x-b.x, a.y-b.y};
     };
     
     template<typename Scalar> struct Size{

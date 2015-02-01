@@ -33,6 +33,8 @@ namespace Game{
     
     struct ControlSettings{
         double zoomSpeed;
+        double mouseScrollSpeed;
+        double keyScrollSpeed;
         
         ControlSettings();
     };
