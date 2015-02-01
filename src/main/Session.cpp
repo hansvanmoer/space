@@ -69,12 +69,6 @@ void Session::draw() {
     viewPoint_.loadProjectionMatrix();
 }
 
-const int maxCumulativeMouseWheelDelta = 1000;
-
-const int mouseWheelDecay = 1000;
-
-const Scalar cumulativeMouseWheelFactor = 4.0;
-
 void Session::handleEvents() {
     int mouseWheelDelta = 0;
     sf::Event event;
