@@ -26,8 +26,8 @@ AC_PROG_CXX
 
 # Check for SFML Window library
 
-SAVED_LDFLAGS=$LDFLAGS
-LDFLAGS="$LDFLAGS -lsfml-window"
+SAVED_LIBS=$LIBS
+LIBS="$LDFLAGS -lsfml-window"
 
 AC_LINK_IFELSE(
     [AC_LANG_PROGRAM([#include <SFML/Window/VideoMode.hpp>],
@@ -35,6 +35,6 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([checking for SFML window library... yes])],
     [AC_MSG_ERROR([No compatible version of the SFML Window library found.])])
 
-LDFLAGS=$SAVED_LDFLAGS
+LIBS=$SAVED_LIBS
 
 AC_OUTPUT
