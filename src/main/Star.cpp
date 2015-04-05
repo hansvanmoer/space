@@ -42,22 +42,21 @@ void OrbitalBodyResourceLoader::load(Core::Path path){
 
 }
 
-Star::Star(StarSystem *system_, std::u32string name_, Position position_, Scalar radius_, const StarResource* resource_) 
-: OrbitalSystem(position_), system(system_), name(name_), radius(radius_), resource(resource_){}
+Star::Star(StarSystem *system_, std::u32string name_, Scalar radius_, const StarResource* resource_) 
+: OrbitalSystem(), system(system_), name(name_), radius(radius_), resource(resource_){}
 
 void Star::draw(){
-    Position pos = position();
     glLoadIdentity();
     glBindTexture(GL_TEXTURE_2D, resource->tacticalTexture.id);
     glBegin(GL_QUADS);
     glTexCoord2d(0,0);
-    glVertex3d(pos.x-radius, pos.y-radius, 0);
+    glVertex3d(position.x-radius, position.y-radius, 0);
     glTexCoord2d(1.0,0);
-    glVertex3d(pos.x+radius, pos.y-radius, 0);
+    glVertex3d(position.x+radius, position.y-radius, 0);
     glTexCoord2d(1.0,1.0);
-    glVertex3d(pos.x+radius, pos.y+radius, 0);
+    glVertex3d(position.x+radius, position.y+radius, 0);
     glTexCoord2d(0,1.0);
-    glVertex3d(pos.x-radius, pos.y+radius, 0);
+    glVertex3d(position.x-radius, position.y+radius, 0);
     glEnd();
 }
 
@@ -70,54 +69,43 @@ Planet::~Planet(){
     }
 }
 
-void Planet::add(Planet* moon, Scalar radius, Scalar radialSpeed, Scalar radialAngle) {
-    moons.push_back(moon);
-    attach(new CircularOrbit{*moon, radius, radialSpeed, radialAngle});
-}
-
-
 void Planet::draw(){
-    Position pos = position();
     glLoadIdentity();
     glBindTexture(GL_TEXTURE_2D, resource->tacticalTexture.id);
     glBegin(GL_QUADS);
     glTexCoord2d(0,0);
-    glVertex3d(pos.x - radius, pos.y - radius, 0);
+    glVertex3d(position.x - radius, position.y - radius, 0);
     glTexCoord2d(1.0,0);
-    glVertex3d(pos.x+radius, pos.y - radius, 0);
+    glVertex3d(position.x+radius, position.y - radius, 0);
     glTexCoord2d(1.0,1.0);
-    glVertex3d(pos.x+radius, pos.y+radius, 0);
+    glVertex3d(position.x+radius, position.y+radius, 0);
     glTexCoord2d(0,1.0);
-    glVertex3d(pos.x - radius, pos.y+radius, 0);
+    glVertex3d(position.x - radius, position.y+radius, 0);
     glEnd();
     for(auto moon : moons){
         moon->draw();
     }
 }
 
-StarSystem::StarSystem() : star(), planets(){}
+StarSystem::StarSystem() : stars(), planets(){}
 
 StarSystem::~StarSystem(){
-    delete star;
+    for(auto star : stars){
+        delete star;
+    }
     for(auto planet : planets){
         delete planet;
     }
 }
 
-void StarSystem::add(Planet* planet, Scalar radius, Scalar radialSpeed, Scalar radialAngle) {
-    planets.push_back(planet);
-    star->attach(new CircularOrbit{*planet, radius, radialSpeed, radialAngle});
-}
-
-void StarSystem::update() {
-    star->update();
-    for(auto planet : planets){
-        planet->update();
-    }
+void StarSystem::updateOrbits() {
+    orbitUpdated();
 }
 
 void StarSystem::draw() {
-    star->draw();
+    for(auto star : stars){
+        star->draw();
+    }
     for(auto planet : planets){
         planet->draw();
     }

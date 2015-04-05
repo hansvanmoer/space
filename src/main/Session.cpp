@@ -51,7 +51,7 @@ void Session::startEventLoop() {
     time lastFrame = clock::now();
     while (running_.load()) {
         handleEvents();
-        starSystem_->update();
+        starSystem_->updateOrbits();
         draw();
         window_.render();
         time afterRender = clock::now();
@@ -160,13 +160,13 @@ void Session::loadTestScenario() {
         }
     }
     starSystem_ = new StarSystem();
-    starSystem_->star = new Star{starSystem_, U"Alpha Centauri A",Position{0,0},2000.,starResources_["main_sequence_yellow_01"]};
-    starSystem_->add(new Planet{starSystem_, U"1 Alpha Centauri A", 50., planetResources_["gas_giant_01"]}, 3200., (2*pi()) / 6000., 3*pi()/4);
-    Planet *planet = new Planet{starSystem_, U"2 Alpha Centauri A ", 200., planetResources_["gas_giant_01"]};
-    planet->add(new Planet{starSystem_, U"Moon ", 20., planetResources_["gas_giant_01"]}, 310., (2*pi()) / 2000., pi());
-    starSystem_->add(planet, 3700., -(2*pi()) / 10000., 0);
-    starSystem_->add(new Planet{starSystem_, U"3 Alpha Centauri A", 75., planetResources_["gas_giant_01"]}, 2750., (2*pi()) / 2000., 6*pi()/7);
-    starSystem_->add(new Planet{starSystem_, U"4 Alpha Centauri A", 60., planetResources_["gas_giant_01"]}, 5000., (2*pi()) / 30000., 1*pi()/2);
+    //starSystem_->star = new Star{starSystem_, U"Alpha Centauri A",Position{0,0},2000.,starResources_["main_sequence_yellow_01"]};
+    //starSystem_->add(new Planet{starSystem_, U"1 Alpha Centauri A", 50., planetResources_["gas_giant_01"]}, 3200., (2*pi()) / 6000., 3*pi()/4);
+    //Planet *planet = new Planet{starSystem_, U"2 Alpha Centauri A ", 200., planetResources_["gas_giant_01"]};
+    //planet->add(new Planet{starSystem_, U"Moon ", 20., planetResources_["gas_giant_01"]}, 310., (2*pi()) / 2000., pi());
+    //starSystem_->add(planet, 3700., -(2*pi()) / 10000., 0);
+    //starSystem_->add(new Planet{starSystem_, U"3 Alpha Centauri A", 75., planetResources_["gas_giant_01"]}, 2750., (2*pi()) / 2000., 6*pi()/7);
+    //starSystem_->add(new Planet{starSystem_, U"4 Alpha Centauri A", 60., planetResources_["gas_giant_01"]}, 5000., (2*pi()) / 30000., 1*pi()/2);*/
 
 }
 

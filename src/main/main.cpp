@@ -14,6 +14,8 @@
 #include "Graphics.h"
 #include "Session.h"
 
+#include "Script.h"
+
 using namespace Game;
 using Core::Path;
 using Core::Language;
@@ -66,6 +68,15 @@ void shutdownSubSystems() {
     std::cout << "all subsystems stopped" << std::endl;
 }
 
+void testScript(){
+    ApplicationSystem<Script::ExecutorSystem>::initialize();
+    Script::BasicExecutor<Script::ModuleLoader> executor;
+    std::ostringstream buffer;
+    Script::addModule<Script::LogModule>(executor);
+    Script::getModule<Script::LogModule>(executor).output(&buffer);
+    executor.execute("print(\"TEST TEST\")");
+    std::cout << "buffer: " << buffer.str() << std::endl;
+};
 
 int main(int argCount, const char **args) {
     startSubSystems(argCount, args);
@@ -76,6 +87,7 @@ int main(int argCount, const char **args) {
         std::cout << "loading defaults" << std::endl;
     }
     loadModule("space");
+    testScript();
     Session session;
     session.startEventLoop();
     try {

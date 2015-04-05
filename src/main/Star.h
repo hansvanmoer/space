@@ -15,9 +15,10 @@
 #include "Path.h"
 #include "Resource.h"
 #include "Texture.h"
+#include "Orbit.h"
 
 namespace Game{
-        
+    
     class OrbitalBodyResource{
     public:
         
@@ -54,9 +55,11 @@ namespace Game{
         Scalar radius;        
         const StarResource *resource;
         
-        Star(StarSystem *system, std::u32string name, Position position, Scalar radius, const StarResource *resource);
+        Star(StarSystem *system, std::u32string name, Scalar radius, const StarResource *resource);
         
         void draw();
+        
+        void update();
         
     private:
         Star(const Star &) = delete;
@@ -81,25 +84,21 @@ namespace Game{
         
         void draw();
         
-        void add(Planet *moon, Scalar radius, Scalar radialSpeed, Scalar radialAngle = 0.);
-        
     private:
         Planet(const Planet &) = delete;
         Planet &operator=(const Planet &) = delete;
     };
     
-    class StarSystem{
+    class StarSystem : public OrbitalSystem{
     public:    
-        Star *star;
+        std::list<Star *> stars;
         std::list<Planet *> planets;
         
         StarSystem();
         
         void draw();
         
-        void update();
-        
-        void add(Planet *planet, Scalar radius, Scalar radialSpeed, Scalar radialAngle = 0.);
+        void updateOrbits();
         
         ~StarSystem();
     private:

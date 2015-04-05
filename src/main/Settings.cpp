@@ -189,7 +189,6 @@ void SettingsSystem::load(){
         }else{
             throw SettingsException("no settings file found");
         }
-        
     }catch(JSON::JSONException &e){
         throw SettingsException(e.what());
     }catch(PathException &e){
