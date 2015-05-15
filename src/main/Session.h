@@ -31,6 +31,10 @@ namespace Game{
         
         void stop();
         
+        const StarResourceLoader &starResourceLoader() const;
+        
+        const PlanetResourceLoader &planetResourceLoader() const;
+        
     private:
 
         struct ScrollRegion{

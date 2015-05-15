@@ -173,3 +173,13 @@ void Session::loadTestScenario() {
 void Session::unloadTestScenario(){
     delete starSystem_;
 }
+
+const PlanetResourceLoader &Session::planetResourceLoader() const {
+    return planetResources_;
+}
+
+const StarResourceLoader &Session::starResourceLoader() const{
+    return starResources_;
+}
+
+

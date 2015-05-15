@@ -15,6 +15,7 @@
 #include "Session.h"
 
 #include "Script.h"
+#include "MapGenerator.h"
 
 using namespace Game;
 using Core::Path;
@@ -70,12 +71,17 @@ void shutdownSubSystems() {
 
 void testScript(){
     ApplicationSystem<Script::ExecutorSystem>::initialize();
-    Script::BasicExecutor<Script::ModuleLoader> executor;
-    std::ostringstream buffer;
-    Script::addModule<Script::LogModule>(executor);
-    Script::getModule<Script::LogModule>(executor).output(&buffer);
-    executor.execute("print(\"TEST TEST\")");
-    std::cout << "buffer: " << buffer.str() << std::endl;
+    ApplicationSystem<MapGenerator>::initialize();
+    
+    ApplicationSystem<MapGenerator>::instance().run(
+    R"foo(import mapgenerator
+mapgenerator.setName("test")
+mapgenerator.setPosition(1.0,2.0)
+mapgenerator.setRadius(1.0)
+mapgenerator.setResourceId("resource")
+mapgenerator.staticOrbit(1.0,2.0)
+mapgenerator.circularOrbit(1.0,1.0,1.0))foo"
+    );
 };
 
 int main(int argCount, const char **args) {

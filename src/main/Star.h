@@ -91,10 +91,13 @@ namespace Game{
     
     class StarSystem : public OrbitalSystem{
     public:    
+        std::u32string name;
         std::list<Star *> stars;
         std::list<Planet *> planets;
         
         StarSystem();
+        
+        StarSystem(std::u32string name, Position position);
         
         void draw();
         

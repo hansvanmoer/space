@@ -1,6 +1,8 @@
 
+Note: All dependencies should be GPL compatible
 
 Dependencies:
 
 SFML 2.0 libraries (http://www.sfml-dev.org), distributed under the zlip/png license (http://opensource.org/licenses/Zlib).
-OpenGL (https://www.opengl.org)
+Python 3.4 interpreter and c bindings (https://www.python.org) distributed under python license (https://www.python.org/download/releases/3.4.1/license)
+OpenGL 3.0 or newer (https://www.opengl.org)

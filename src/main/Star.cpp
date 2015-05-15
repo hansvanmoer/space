@@ -87,7 +87,11 @@ void Planet::draw(){
     }
 }
 
-StarSystem::StarSystem() : stars(), planets(){}
+StarSystem::StarSystem() : name(), stars(), planets(){}
+
+StarSystem::StarSystem(std::u32string name, Position position_) : name(name), stars(), planets(){
+    position = position_;
+}
 
 StarSystem::~StarSystem(){
     for(auto star : stars){
