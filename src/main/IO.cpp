@@ -1,4 +1,7 @@
 #include "IO.h"
+#include "Path.h"
+
+#include <fstream>
 
 using namespace Game;
 

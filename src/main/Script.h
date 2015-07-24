@@ -8,321 +8,191 @@
 #ifndef SCRIPT_H
 #define	SCRIPT_H
 
-#include "Application.h"
 
 #include <list>
 #include <mutex>
-#include <typeinfo>
-#include <unordered_map>
-#include <condition_variable>
-#include <chrono>
 #include <stdexcept>
-#include <iostream>
-#include <typeindex>
 
-#include "String.h"
+#include "Path.h"
+#include "Application.h"
 
 namespace Script {
-
+    
+    class ScriptException : public std::runtime_error{
+    public:    
+        ScriptException(std::string message);
+    };
+    
+    class ScriptExecutionException : public std::runtime_error{
+    private:
+        std::string name_;
+        int line_;
+        int column_;
+    public:
+        ScriptExecutionException(std::string exceptionName, std::string message, int line ,int column);
+        
+        std::string name() const;
+        
+        int line() const;
+  
+        int column() const;
+    };
+    
     class Executor;
-
-    class ExecutorSystem {
+    
+    class ScriptSystem{
+        friend class Executor;
     public:
         
         static const std::string NAME;
         
-        ExecutorSystem();
-        ~ExecutorSystem();
-
-        void execute(Executor *executor, std::string script);
-
-        template<typename Rep, typename Period> bool execute(Executor *executor, std::chrono::duration<Rep, Period> timeout, std::string script) {
-            std::unique_lock<std::mutex> lock{mutex_, timeout};
-            if (lock.owns_lock()) {
-                try {
-                    doExecute(executor, script);
-                    lock.unlock();
-                    return true;
-                } catch (...) {
-                    lock.unlock();
-                    throw;
-                }
+        ScriptSystem();
+        ~ScriptSystem();
+    private:
+        
+        class InterpreterGuard{
+        public:
+            InterpreterGuard(Executor *executor);
+            ~InterpreterGuard();
+            
+        private:
+            Executor *executor_;
+            
+            void finalize();
+            
+            InterpreterGuard(const InterpreterGuard &) = delete;
+            InterpreterGuard &operator=(const InterpreterGuard &) = delete;
+        };
+        
+        std::string getCodeFromFile(Core::Path path);
+        
+        void doExecute(Executor * executor, std::string scriptCode);
+        
+        void execute(Executor * executor, std::string scriptCode);
+        
+        template<typename Rep, typename Period> bool execute(Executor *executor, std::string scriptCode, std::chrono::duration<Rep,Period> duration){
+            if(mutex_.try_lock_for<Rep, Period>(duration)){
+                std::lock_guard<std::timed_mutex> lock{mutex_, std::adopt_lock_t{}};
+                doExecute(executor, scriptCode);
+                return true;
+            }else{
+                return false;
             }
-            return false;
         };
-
-        bool executeImmediate(Executor *executor, std::string script);
+        
+        bool executeImmediate(Executor *executor, std::string scriptCode);
+        
+        void executeFile(Executor *executor, Core::Path scriptPath);
+        
+        template<typename Rep, typename Period> bool executeFile(Executor *executor, Core::Path scriptPath, std::chrono::duration<Rep,Period> duration){
+            if(mutex_.try_lock_for<Rep, Period>(duration)){
+                std::lock_guard<std::timed_mutex> lock{mutex_, std::adopt_lock_t{}};
+                doExecute(executor, getCodeFromFile(scriptPath));
+                return true;
+            }else{
+                return false;
+            }
+        };
+        
+        bool executeFileImmediate(Executor *executor, Core::Path scriptPath);
+        
+        std::timed_mutex mutex_;
+    };
+    
+    
+    class Executor{
+        friend class ScriptSystem;
     private:
-        std::mutex mutex_;
-
-        void doExecute(Executor *executor, std::string script);
-    };
-
-    class ScriptException : public std::runtime_error {
+        std::string name_;
     public:
-        ScriptException(std::string message);
-
-        virtual ~ScriptException();
-    };
-
-    class Executor {
-    public:
-        Executor();
-
+        
+        Executor(std::string name);
+        
         virtual ~Executor();
-
-        void execute(std::string script);
-
-        bool executeImmediate(std::string script);
         
-        template<typename Rep, typename Period> bool execute(Executor *executor, std::chrono::duration<Rep, Period> timeout, std::string script) {
-            Game::ApplicationSystem<ExecutorSystem>::instance().execute(this, timeout, script);
-        };
-
-    protected:
-
-        virtual void beforeInit();
+        void execute(std::string scriptCode);
         
-        virtual void beforeExecution();
-
-        virtual void afterExecution();
-        
-        virtual void afterFinalize();
-
-        friend class ExecutorSystem;
-
-    private:
-        Executor(const Executor &) = delete;
-        Executor &operator=(const Executor &) = delete;
-    };
-
-    template<typename ExecutorPolicy, typename... ExecutorPolicies> class BasicExecutorBase : public ExecutorPolicy, public BasicExecutorBase<ExecutorPolicies...> {
-    public:
-
-        virtual ~BasicExecutorBase() {
-        };
-
-    protected:
-        
-        BasicExecutorBase() : ExecutorPolicy(), BasicExecutorBase<ExecutorPolicies...>() {
-        };
-
-        virtual void beforeInit(){
-            ExecutorPolicy::beforeInit();
-            BasicExecutorBase < ExecutorPolicies...>::beforeInit();
+        template<typename Rep, typename Period> bool execute(std::string scriptCode, std::chrono::duration<Rep,Period> duration){
+            return Game::ApplicationSystem<ScriptSystem>::instance().execute(this, scriptCode, duration);
         };
         
-        virtual void beforeExecution() {
-            ExecutorPolicy::beforeExecution();
-            BasicExecutorBase < ExecutorPolicies...>::beforeExecution();
-        };
-
-        virtual void afterExecution() {
-            BasicExecutorBase < ExecutorPolicies...>::afterExecution();
-            ExecutorPolicy::afterExecution();
+        bool executeImmediate(std::string scriptCode);
+        
+        void executeFile(Core::Path scriptPath);
+        
+        template<typename Rep, typename Period> bool executeFile(Core::Path scriptPath, std::chrono::duration<Rep,Period> duration){
+            return Game::ApplicationSystem<ScriptSystem>::instance().execute(this, scriptPath, duration);
         };
         
-        virtual void afterFinalize(){
-            BasicExecutorBase < ExecutorPolicies...>::afterFinalize();
-            ExecutorPolicy::afterFinalize();
-        };
-    };
-
-    template<typename ExecutorPolicy> class BasicExecutorBase<ExecutorPolicy> : public ExecutorPolicy{
-    public:
-        virtual ~BasicExecutorBase() {
-        };
-
-    protected:
-
-        BasicExecutorBase() {
-        };
-        
-        virtual void beforeInit(){
-            ExecutorPolicy::beforeInit();
-        };
-        
-        virtual void beforeExecution() {
-            ExecutorPolicy::beforeExecution();
-        };
-
-        virtual void afterExecution() {
-            ExecutorPolicy::afterExecution();
-        };
-        
-        virtual void afterFinalize(){
-            ExecutorPolicy::afterFinalize();
-        };
-    };
-    
-    template<typename ExecutorPolicy, typename... ExecutorPolicies> class BasicExecutor : public virtual Executor, public BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>{
-    public:
-        BasicExecutor() : Executor(),  BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>(){};
-        
-        virtual ~BasicExecutor(){};
-        
-    protected:
-        virtual void beforeInit() {
-            BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>::beforeInit();
-        };
-        
-        virtual void beforeExecution() {
-            BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>::beforeExecution();
-        };
-
-        virtual void afterExecution(){
-            BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>::afterExecution();
-        };
-        
-        virtual void afterFinalize(){
-            BasicExecutorBase<ExecutorPolicy, ExecutorPolicies...>::afterFinalize();
-        };
-    };
-    
-    class ModuleLoader;
-    
-    class Module{
-    public:
-        
-        virtual ~Module();
+        bool executeFileImmediate(Core::Path scriptPath);
         
         std::string name() const;
         
     protected:
+        virtual void beforeInitialize();
         
-        Module(std::string name);
+        virtual void afterInitialize();
         
-        virtual bool ready(std::ostream &errorOutput);
+        virtual void beforeExecute();
         
-        virtual void beforeInit();
+        virtual void afterExecute();
         
-        virtual void beforeExecution();
-        
-        virtual void afterExecution();
+        virtual void beforeFinalize();
         
         virtual void afterFinalize();
         
     private:
-        
-        std::string name_;
-
-        friend class ModuleLoader;
-        
-        Module(const Module &) = delete;
-        Module &operator=(const Module &) = delete;
+        Executor(const Executor &) = delete;
+        Executor &operator=(const Executor &) = delete;
     };
     
-    class ModuleLoader : public virtual Executor{
+    class Module{
     public:
+        ~Module();
         
-        ModuleLoader();
+        virtual void beforeInitialize();
         
-        virtual ~ModuleLoader();
+        virtual void afterInitialize();
         
-        void add(Module *module);
+        virtual void beforeExecute();
         
-        void remove(Module *module);
+        virtual void afterExecute();
         
-    protected:
-        
-        virtual void beforeInit();
-        
-        virtual void beforeExecution();
-        
-        virtual void afterExecution();
+        virtual void beforeFinalize();
         
         virtual void afterFinalize();
+    protected:
+        Module();
+    };
+    
+    class ModularExecutor : public Executor{
+    public:
+        ModularExecutor(std::string name);
+        
+        ~ModularExecutor();
+        
+        void addModule(Module *module);
+        
+        template<typename ModuleType> void addModule(){
+            addModule(new ModuleType{});
+        };
         
     private:
-        
-        template<typename ModuleType> friend bool hasModule(const ModuleLoader &loader);
-        template<typename ModuleType> friend ModuleType &getModule(const ModuleLoader &loader);
-        template<typename ModuleType> friend ModuleType &addModule(ModuleLoader &loader, ModuleType *module);
-        template<typename ModuleType> friend void removeModule(ModuleLoader &loader);
         
         std::list<Module *> modules_;
-        std::unordered_map<std::type_index, Module *> moduleMap_;
+        
+        void beforeInitialize();
+        
+        void afterInitialize();
+        
+        void beforeExecute();
+        
+        void afterExecute();
+        
+        void beforeFinalize();
+        
+        void afterFinalize();
     };
-    
-    
-    template<typename ModuleType> bool hasModule(const ModuleLoader &loader){
-        return loader.moduleMap_.find(std::type_index{typeid(ModuleType *)}) != loader.moduleMap_.end();
-    };
-    
-    template<typename ModuleType> ModuleType &getModule(const ModuleLoader &loader){
-        std::type_index type{typeid(ModuleType *)};
-        auto found = loader.moduleMap_.find(type);
-        if(found == loader.moduleMap_.end()){
-            throw ScriptException(Core::toString("no such module: ", type.name()));
-        }else{
-            return dynamic_cast<ModuleType &>(*found->second);
-        }
-    };
-    
-    template<typename ModuleType> ModuleType &addModule(ModuleLoader &loader, ModuleType *module){
-        std::type_index type{typeid(ModuleType *)};
-        auto found = loader.moduleMap_.find(type);
-        if(found == loader.moduleMap_.end()){
-            loader.moduleMap_.insert(std::pair<std::type_index, Module *>{type, module});
-            loader.modules_.push_back(module);
-        }else{
-            throw ScriptException(Core::toString("module '", module->name(), "' already added"));
-        }
-        return dynamic_cast<ModuleType &>(*module);
-    };
-    
-    template<typename ModuleType> ModuleType &addModule(ModuleLoader &loader){
-        ModuleType *module = new ModuleType{};
-        try{
-            addModule<ModuleType>(loader, module);
-        }catch(...){
-            delete module;
-            throw;
-        }
-    };
-    
-    template<typename ModuleType> void removeModule(ModuleLoader &loader){
-        std::type_index type{typeid(ModuleType *)};
-        auto found = loader.moduleMap_.find(type);
-        if(found == loader.moduleMap_.end()){
-            throw ScriptException(Core::toString("module '", type.name(), "' not found"));
-        }else{
-            Module *module = found->second;
-            loader.moduleMap_.erase(found);
-            loader.modules_.remove(module);
-            delete module;
-        }
-    };
-    
-    class LogModule : public Module{
-    public:
-        
-        LogModule();
-        
-        LogModule(std::ostream *output, bool ownsOutput = false);
-        
-        void output(std::ostream *output, bool ownsOutput = false);
-        
-        std::ostream *output() const;
-        
-        bool ownsOutput() const;
-        
-        ~LogModule();
-        
-    protected:
-        
-        bool ready(std::ostream &errorOutput);
-        
-        void beforeInit();
-        
-        void beforeExecution();
-        
-    private:
-        
-        std::ostream *output_;
-        bool ownsOutput_;
-    };
-
     
 }
 

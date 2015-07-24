@@ -89,25 +89,6 @@ namespace Game{
         MapGenerator &operator=(const MapGenerator &) = delete;
     };
     
-    class MapGeneratorModule : public Script::Module{
-    public:
-        MapGeneratorModule();
-        
-        void mapGenerator(MapGenerator *mapGenerator);
-        
-    protected:
-        
-        virtual bool ready(std::ostream &errorOutput);
-        
-        virtual void beforeInit();
-        
-        virtual void beforeExecution();
-        
-        virtual void afterFinalize();
-    private:
-        MapGenerator *mapGenerator_;
-    };
-    
 }
 
 #endif	/* MAPGENERATOR_H */

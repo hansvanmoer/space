@@ -70,18 +70,7 @@ void shutdownSubSystems() {
 }
 
 void testScript(){
-    ApplicationSystem<Script::ExecutorSystem>::initialize();
-    ApplicationSystem<MapGenerator>::initialize();
     
-    ApplicationSystem<MapGenerator>::instance().run(
-    R"foo(import mapgenerator
-mapgenerator.setName("test")
-mapgenerator.setPosition(1.0,2.0)
-mapgenerator.setRadius(1.0)
-mapgenerator.setResourceId("resource")
-mapgenerator.staticOrbit(1.0,2.0)
-mapgenerator.circularOrbit(1.0,1.0,1.0))foo"
-    );
 };
 
 int main(int argCount, const char **args) {
