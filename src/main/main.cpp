@@ -32,6 +32,7 @@ bool startSubSystems(int argCount, const char **args) {
 #endif
         ApplicationSystem<DataSystem>::initialize(executablePath.parent());
         ApplicationSystem<SettingsSystem>::initialize();
+        ApplicationSystem<Script::ScriptSystem>::initialize();
         std::cout << "all subsystems started" << std::endl;
     } catch (ApplicationException &e) {
         std::cout << "a subsystem did not properly start: " << e.what() << std::endl;
@@ -52,20 +53,21 @@ void loadModule(std::string moduleName) {
     }
 }
 
+template<typename System> void shutdownSubSystem(){
+    try {
+        std::cout << "stopping subsystem '" << System::NAME << "'" << std::endl;
+        ApplicationSystem<System>::shutdown();
+    } catch (ApplicationException &e) {
+        std::cout << "subsystem '" << System::NAME << "' did not stop properly: " << e.what() << std::endl;
+        std::cout << "closing down application" << std::endl;
+    }
+}
+
 void shutdownSubSystems() {
     std::cout << "stopping subsystems" << std::endl;
-    try {
-        ApplicationSystem<DataSystem>::shutdown();
-    } catch (ApplicationException &e) {
-        std::cout << "a subsystem did not properly stop: " << e.what() << std::endl;
-        std::cout << "closing down application" << std::endl;
-    }
-    try {
-        ApplicationSystem<SettingsSystem>::shutdown();
-    } catch (ApplicationException &e) {
-        std::cout << "a subsystem did not properly stop: " << e.what() << std::endl;
-        std::cout << "closing down application" << std::endl;
-    }
+    shutdownSubSystem<DataSystem>();
+    shutdownSubSystem<SettingsSystem>();
+    shutdownSubSystem<Script::ScriptSystem>();
     std::cout << "all subsystems stopped" << std::endl;
 }
 
@@ -91,7 +93,6 @@ int main(int argCount, const char **args) {
         std::cout << "unable to save application settings: " << e.what() << std::endl;
     }
     shutdownSubSystems();
-
 
     return 0;
 };

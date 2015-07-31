@@ -122,6 +122,8 @@ void ScriptSystem::executeFile(Executor* executor, Core::Path scriptPath) {
     execute(executor, getCodeFromFile(scriptPath));
 }
 
+ScriptSystem::~ScriptSystem(){}
+
 Executor::Executor(std::string name) : name_(name) {
 }
 
@@ -255,13 +257,23 @@ void ModularExecutor::afterFinalize() {
 class PythonLogger{
 public:
     
-    PythonLogger(){};
+    PythonLogger() : output_(&std::cout){};
     
     void write(std::string message){
-        std::cout << message;
+        (*output_) << message;
     };
     
     void flush(){};
+    
+    void setOutput(std::ostream *output){
+        if(output){
+            output_ = output;
+        }else{
+            throw std::invalid_argument("python output can't be bound to a null pointer");
+        }
+    };
+private:
+    std::ostream *output_;
 };
 
 LogModule::LogModule(std::ostream &output) : output_(output), writer_() {};
@@ -276,6 +288,8 @@ void LogModule::beforeExecute(boost::python::object mainNamespace) {
             .def("write", &PythonLogger::write)
             .def("flush", &PythonLogger::flush)
     )();
+    PythonLogger &logger = extract<PythonLogger &>(writer_);
+    logger.setOutput(&output_);
     mainNamespace["logger"] = writer_;
     exec("import sys\nsys.stdout=logger", mainNamespace, mainNamespace);
 }

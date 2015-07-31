@@ -157,13 +157,6 @@ void setResourceId(std::string resourceId){
     ApplicationSystem<MapGenerator>::instance().resourceId = resourceId;
 };
 
-class Writer{
-public:
-    void print(std::string msg){
-        std::cout << msg;
-    };
-};
-
 BOOST_PYTHON_MODULE(mapgenerator) {
     using namespace boost::python;
 
@@ -175,29 +168,7 @@ BOOST_PYTHON_MODULE(mapgenerator) {
 }
 
 void Game::testMapGenerator(){
-    /*using namespace boost::python;
-    
-    PyImport_AppendInittab( "mapgenerator", &PyInit_mapgenerator);
-    Py_Initialize();
-    
-    
-    try{
-        object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
-        object main_namespace = main_module.attr("__dict__");
-        //object cpp_module( (handle<>(PyImport_ImportModule("mapgenerator"))) );
-        //main_namespace["mapgenerator"] = cpp_module;
-        boost::python::exec("import mapgenerator", main_namespace, main_namespace);
-    }catch(...){
-        std::cout << "python error:" <<std::endl;
-        PyErr_Print();
-    }
-    //boost::python::exec("i=1");
-     * */
-    
-    
     using namespace Script;
-    
-    ApplicationSystem<ScriptSystem>::initialize();
     ModularExecutor executor{"mapgenerator"};
     executor.addModule(new LogModule(std::cout));
     executor.execute("print(\"test\")");
