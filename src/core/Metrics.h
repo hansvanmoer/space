@@ -25,13 +25,13 @@ namespace Core{
             return p.x != x || p.y != y;
         };
         
-        template<typename Scalar2> Point<Scalar> operator+=(const Point<Scalar2> &p){
+        template<typename Scalar2> Point<Scalar> &operator+=(const Point<Scalar2> &p){
             x+=static_cast<Scalar>(p.x);
             y+=static_cast<Scalar>(p.y);
             return *this;
         };
         
-        template<typename Scalar2> Point<Scalar> operator-=(const Point<Scalar2> &p){
+        template<typename Scalar2> Point<Scalar> &operator-=(const Point<Scalar2> &p){
             x-=static_cast<Scalar>(p.x);
             y-=static_cast<Scalar>(p.y);
             return *this;

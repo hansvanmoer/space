@@ -89,6 +89,7 @@ namespace Game{
         MapGenerator &operator=(const MapGenerator &) = delete;
     };
     
+    void testMapGenerator();
 }
 
 #endif	/* MAPGENERATOR_H */

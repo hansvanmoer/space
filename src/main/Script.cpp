@@ -2,9 +2,6 @@
 
 #include "String.h"
 
-#include <python3.4/Python.h>
-#include <boost/python.hpp>
-
 using namespace Script;
 using namespace Core;
 
@@ -89,18 +86,15 @@ void ScriptSystem::doExecute(Executor* executor, std::string scriptCode) {
     using namespace boost::python;
     InterpreterGuard guard{executor};
     try {
-        executor->beforeExecute();
-        exec(str{scriptCode.c_str()});
-        executor->afterExecute();
+        object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+        object main_namespace = main_module.attr("__dict__");
+        executor->beforeExecute(main_namespace);
+        exec(str{scriptCode.c_str()}, main_namespace, main_namespace);
+        executor->afterExecute(main_namespace);
     } catch (error_already_set &e) {
-        PyObject *e, *v, *t;
-        PyErr_Fetch(&e, &v, &t);
-        object e_obj(handle<>(allow_null(e)));
-        object v_obj(handle<>(allow_null(v)));
-        std::string name{extract<std::string>(e_obj.attr("__name__"))()};
-        PyErr_Restore(e, v, t);
-        delete t;
-        throw ScriptExecutionException{name,Core::toString("an exception has occurred in executor ", executor->name()), 0, 0};
+        std::cerr << "python interpreter has encountered an error" <<std::endl;
+        PyErr_Print();
+        throw ScriptExecutionException{"unknown error","python interpreter has encountered an error", 0, 0};
     }
 }
 
@@ -158,11 +152,11 @@ void Executor::afterInitialize() {
 
 }
 
-void Executor::beforeExecute() {
+void Executor::beforeExecute(boost::python::object mainNamespace) {
 
 }
 
-void Executor::afterExecute() {
+void Executor::afterExecute(boost::python::object mainNamespace) {
 
 }
 
@@ -192,11 +186,11 @@ void Module::afterInitialize() {
 
 }
 
-void Module::beforeExecute() {
+void Module::beforeExecute(boost::python::object mainNamespace) {
 
 }
 
-void Module::afterExecute() {
+void Module::afterExecute(boost::python::object mainNamespace) {
 
 }
 
@@ -218,6 +212,10 @@ ModularExecutor::~ModularExecutor() {
     }
 }
 
+void ModularExecutor::addModule(Module* module){
+    modules_.push_back(module);
+}
+
 void ModularExecutor::beforeInitialize() {
     for (auto i : modules_) {
         i->beforeInitialize();
@@ -230,15 +228,15 @@ void ModularExecutor::afterInitialize() {
     }
 }
 
-void ModularExecutor::beforeExecute() {
+void ModularExecutor::beforeExecute(boost::python::object mainNamespace) {
     for (auto i : modules_) {
-        i->beforeExecute();
+        i->beforeExecute(mainNamespace);
     }
 }
 
-void ModularExecutor::afterExecute() {
+void ModularExecutor::afterExecute(boost::python::object mainNamespace) {
     for (auto i : modules_) {
-        i->afterExecute();
+        i->afterExecute(mainNamespace);
     }
 }
 
@@ -252,4 +250,38 @@ void ModularExecutor::afterFinalize() {
     for (auto i : modules_) {
         i->afterFinalize();
     }
+}
+
+class PythonLogger{
+public:
+    
+    PythonLogger(){};
+    
+    void write(std::string message){
+        std::cout << message;
+    };
+    
+    void flush(){};
+};
+
+LogModule::LogModule(std::ostream &output) : output_(output), writer_() {};
+
+LogModule::~LogModule(){
+}
+
+void LogModule::beforeExecute(boost::python::object mainNamespace) {
+    using namespace boost::python;
+    writer_ = (
+            class_<PythonLogger>("PythonLogger")
+            .def("write", &PythonLogger::write)
+            .def("flush", &PythonLogger::flush)
+    )();
+    mainNamespace["logger"] = writer_;
+    exec("import sys\nsys.stdout=logger", mainNamespace, mainNamespace);
+}
+
+void LogModule::afterExecute(boost::python::object mainNamespace) {
+    using namespace boost::python;
+    writer_ = object{};
+    mainNamespace["logger"] = writer_;
 }

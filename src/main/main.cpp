@@ -70,7 +70,7 @@ void shutdownSubSystems() {
 }
 
 void testScript(){
-    
+    Game::testMapGenerator();
 };
 
 int main(int argCount, const char **args) {

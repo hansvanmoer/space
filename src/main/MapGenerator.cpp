@@ -10,7 +10,8 @@ using namespace Game;
 
 const std::string MapGenerator::NAME{"mapgenerator"};
 
-MapGeneratorException::MapGeneratorException(std::string message) : std::runtime_error(message){}
+MapGeneratorException::MapGeneratorException(std::string message) : std::runtime_error(message) {
+}
 
 MapGenerator::MapGenerator() : systems_(), currentStarSystem_(), currentOrbitalSystem_(), currentOrbit_(), name(), radius(), position(), resourceId(), session_() {
 }
@@ -131,21 +132,73 @@ void MapGenerator::run(std::string scriptCode) {
     boost::python::str buffer{scriptCode.c_str()};
     Py_Initialize();
     object main_module = import("mapgenerator");
-    try{
+    try {
         exec(buffer);
-    }catch(boost::python::error_already_set &e){
+    } catch (boost::python::error_already_set &e) {
         PyErr_Print();
     }
 }
 
-void nextStarSystem(){
-    ApplicationSystem<MapGenerator>::instance().nextStarSystem();
+std::u32string name;
+
+void setName(std::u32string name){
+    ApplicationSystem<MapGenerator>::instance().name = name;
+};
+
+void setRadius(Scalar radius){
+    ApplicationSystem<MapGenerator>::instance().radius = radius;
+};
+
+void setPosition(Scalar x, Scalar y){
+    ApplicationSystem<MapGenerator>::instance().position = Position{x,y};
+};
+
+void setResourceId(std::string resourceId){
+    ApplicationSystem<MapGenerator>::instance().resourceId = resourceId;
+};
+
+class Writer{
+public:
+    void print(std::string msg){
+        std::cout << msg;
+    };
+};
+
+BOOST_PYTHON_MODULE(mapgenerator) {
+    using namespace boost::python;
+
+    def("setName", setName);
+    def("setRadius", setRadius);
+    def("setPosition", setPosition);
+    def("setResourceId", setResourceId);
+    
 }
 
-BOOST_PYTHON_MODULE(mapgenerator)
-{
-    using namespace boost::python;
+void Game::testMapGenerator(){
+    /*using namespace boost::python;
     
-    def("nextStarSystem", nextStarSystem);
+    PyImport_AppendInittab( "mapgenerator", &PyInit_mapgenerator);
+    Py_Initialize();
     
-}
+    
+    try{
+        object main_module((handle<>(borrowed(PyImport_AddModule("__main__")))));
+        object main_namespace = main_module.attr("__dict__");
+        //object cpp_module( (handle<>(PyImport_ImportModule("mapgenerator"))) );
+        //main_namespace["mapgenerator"] = cpp_module;
+        boost::python::exec("import mapgenerator", main_namespace, main_namespace);
+    }catch(...){
+        std::cout << "python error:" <<std::endl;
+        PyErr_Print();
+    }
+    //boost::python::exec("i=1");
+     * */
+    
+    
+    using namespace Script;
+    
+    ApplicationSystem<ScriptSystem>::initialize();
+    ModularExecutor executor{"mapgenerator"};
+    executor.addModule(new LogModule(std::cout));
+    executor.execute("print(\"test\")");
+};

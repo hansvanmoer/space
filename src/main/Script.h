@@ -13,6 +13,9 @@
 #include <mutex>
 #include <stdexcept>
 
+#include <python3.4/Python.h>
+#include <boost/python.hpp>
+
 #include "Path.h"
 #include "Application.h"
 
@@ -133,9 +136,9 @@ namespace Script {
         
         virtual void afterInitialize();
         
-        virtual void beforeExecute();
+        virtual void beforeExecute(boost::python::object mainNamespace);
         
-        virtual void afterExecute();
+        virtual void afterExecute(boost::python::object mainNamespace);
         
         virtual void beforeFinalize();
         
@@ -148,21 +151,34 @@ namespace Script {
     
     class Module{
     public:
-        ~Module();
+        virtual ~Module();
         
         virtual void beforeInitialize();
         
         virtual void afterInitialize();
         
-        virtual void beforeExecute();
+        virtual void beforeExecute(boost::python::object mainNamespace);
         
-        virtual void afterExecute();
+        virtual void afterExecute(boost::python::object mainNamespace);
         
         virtual void beforeFinalize();
         
         virtual void afterFinalize();
     protected:
         Module();
+    };
+    
+    class LogModule : public Module{
+    public:
+        LogModule(std::ostream &output);
+        ~LogModule();
+        
+        void beforeExecute(boost::python::object mainNamespace);
+        
+        void afterExecute(boost::python::object mainNamespace);
+    private:
+        std::ostream &output_;
+        boost::python::object writer_;
     };
     
     class ModularExecutor : public Executor{
@@ -185,9 +201,9 @@ namespace Script {
         
         void afterInitialize();
         
-        void beforeExecute();
+        void beforeExecute(boost::python::object mainNamespace);
         
-        void afterExecute();
+        void afterExecute(boost::python::object mainNamespace);
         
         void beforeFinalize();
         
