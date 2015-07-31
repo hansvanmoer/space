@@ -168,19 +168,6 @@ namespace Script {
         Module();
     };
     
-    class LogModule : public Module{
-    public:
-        LogModule(std::ostream &output);
-        ~LogModule();
-        
-        void beforeExecute(boost::python::object mainNamespace);
-        
-        void afterExecute(boost::python::object mainNamespace);
-    private:
-        std::ostream &output_;
-        boost::python::object writer_;
-    };
-    
     class ModularExecutor : public Executor{
     public:
         ModularExecutor(std::string name);
@@ -208,6 +195,110 @@ namespace Script {
         void beforeFinalize();
         
         void afterFinalize();
+    };
+    
+    class LogModule : public Module{
+    public:
+        LogModule(std::ostream &output);
+        ~LogModule();
+        
+        void beforeExecute(boost::python::object mainNamespace);
+        
+        void afterExecute(boost::python::object mainNamespace);
+    private:
+        std::ostream &output_;
+        boost::python::object writer_;
+    };
+    
+    template<typename Object, typename Wrapper> class ExposeObjectModule : public Module{
+    public:
+        
+        using Field = Object *Wrapper::*;
+        
+        using Method = void (Wrapper::*)(Object *);
+    private:
+        class Injector{
+        public:
+            
+            virtual ~Injector(){};
+            
+            virtual void inject(Wrapper &wrapper, Object *object) = 0;
+        };
+        
+        class FieldInjector : public Injector{
+        private:
+            Field field_;
+        public:
+            FieldInjector(Field field) : field_(field){};
+            
+            void inject(Wrapper &wrapper, Object *object){
+                (wrapper.*field_) = object;
+            };
+            
+        };
+        
+        class MethodInjector : public Injector{
+        private:
+            Method method_;
+        public:
+            MethodInjector(Method method) : method_(method){};
+            
+            void inject(Wrapper &wrapper, Object *object){
+                (wrapper.*method_)(object);
+            };
+            
+        };
+        
+        std::string typeName_;
+        std::string attributeName_;
+        Object *object_;
+        bool ownsObject_;
+        Injector *injector_;
+        
+    protected:
+        
+        ExposeObjectModule(std::string typeName, std::string attributeName, Field field, Object *object = nullptr, bool ownsObject = false) : typeName_(typeName), attributeName_(attributeName), object_(object), ownsObject_(ownsObject), injector_(new FieldInjector{field}){};
+        
+        ExposeObjectModule(std::string typeName, std::string attributeName, Method method, Object *object = nullptr, bool ownsObject = false) : typeName_(typeName), attributeName_(attributeName), object_(object), ownsObject_(ownsObject), injector_(new MethodInjector{method}){};
+        
+        virtual void defineWrapper(boost::python::class_<Wrapper> &wrapper) = 0;
+        
+    public:
+        
+        virtual ~ExposeObjectModule(){
+            if(ownsObject_){
+                delete object_;
+            }
+        };
+        
+        void setObject(Object *object){
+            object_ = object;
+        };
+        
+        void setObject(Object *object, bool ownsObject){
+            object_ = object;
+            ownsObject_ = ownsObject;
+        };
+        
+        virtual void beforeExecute(boost::python::object mainNamespace){
+            if(object_){
+                using namespace boost::python;
+                class_<Wrapper> wrapperType{typeName_.c_str()};
+                defineWrapper(wrapperType);
+                object handle{wrapperType()};
+                Wrapper &wrapper = extract<Wrapper &>(handle);
+                injector_->inject(wrapper, object_);
+                mainNamespace[attributeName_.c_str()] = wrapper;
+            }else{
+                throw ScriptException("exposed object must not be null");
+            }
+        };
+        
+        virtual void afterExecute(boost::python::object mainNamespace){
+            using namespace boost::python;
+            Wrapper &wrapper = extract<Wrapper &>(mainNamespace[attributeName_.c_str()]);
+            injector_->inject(wrapper, nullptr);
+        };
     };
     
 }

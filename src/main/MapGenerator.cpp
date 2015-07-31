@@ -139,37 +139,79 @@ void MapGenerator::run(std::string scriptCode) {
     }
 }
 
-std::u32string name;
-
-void setName(std::u32string name){
-    ApplicationSystem<MapGenerator>::instance().name = name;
-};
-
-void setRadius(Scalar radius){
-    ApplicationSystem<MapGenerator>::instance().radius = radius;
-};
-
-void setPosition(Scalar x, Scalar y){
-    ApplicationSystem<MapGenerator>::instance().position = Position{x,y};
-};
-
-void setResourceId(std::string resourceId){
-    ApplicationSystem<MapGenerator>::instance().resourceId = resourceId;
-};
-
-BOOST_PYTHON_MODULE(mapgenerator) {
-    using namespace boost::python;
-
-    def("setName", setName);
-    def("setRadius", setRadius);
-    def("setPosition", setPosition);
-    def("setResourceId", setResourceId);
+class MapGeneratorWrapper{
+private:
+    MapGenerator *mapGenerator_;
+public:
+    MapGeneratorWrapper() : mapGenerator_(){};
+            
+    Scalar getRadius(){
+        return mapGenerator_->radius;
+    };
     
-}
+    void setRadius(Scalar radius){
+        mapGenerator_->radius = radius;
+    };
+        
+    Scalar getX(){
+        return mapGenerator_->position.x;
+    };
+    
+    void setX(Scalar x){
+        mapGenerator_->position.x = x;
+    };
+    
+    Scalar getY(){
+        return mapGenerator_->position.y;
+    };
+    
+    void setY(Scalar y){
+        mapGenerator_->position.y = y;
+    };
+    
+    void setPosition(Scalar x, Scalar y){
+        mapGenerator_->position.x = x;
+        mapGenerator_->position.y = y;
+    };
+        
+    std::string getResourceId(){
+        return mapGenerator_->resourceId;
+    };
+    
+    void setResourceId(std::string resourceId){
+        mapGenerator_->resourceId = resourceId;
+    };
+    
+    void setMapGenerator(MapGenerator *mapGenerator){
+        mapGenerator_ = mapGenerator;
+    };
+   
+};
+
+class MapGeneratorModule : public Script::ExposeObjectModule<MapGenerator, MapGeneratorWrapper>{
+public:
+    MapGeneratorModule(MapGenerator *mapGenerator, bool ownsObject = false) : Script::ExposeObjectModule<MapGenerator, MapGeneratorWrapper>("MapGenerator", "mapGenerator", &MapGeneratorWrapper::setMapGenerator, mapGenerator, ownsObject){};
+    
+
+    void defineWrapper(boost::python::class_<MapGeneratorWrapper> &wrapper){
+        wrapper.def("getRadius", &MapGeneratorWrapper::getRadius);
+        wrapper.def("setRadius", &MapGeneratorWrapper::setRadius);
+        wrapper.def("getX", &MapGeneratorWrapper::getX);
+        wrapper.def("setX", &MapGeneratorWrapper::setX);
+        wrapper.def("getY", &MapGeneratorWrapper::getY);
+        wrapper.def("setY", &MapGeneratorWrapper::setY);
+        wrapper.def("setPosition", &MapGeneratorWrapper::setPosition);
+        wrapper.def("getResourceId", &MapGeneratorWrapper::getResourceId);
+        wrapper.def("setResourceId", &MapGeneratorWrapper::setResourceId);
+    };
+    
+};
 
 void Game::testMapGenerator(){
+    MapGenerator *mapGenerator = new MapGenerator{};
     using namespace Script;
     ModularExecutor executor{"mapgenerator"};
     executor.addModule(new LogModule(std::cout));
-    executor.execute("print(\"test\")");
+    executor.addModule(new MapGeneratorModule{mapGenerator, true});
+    executor.execute("print(mapGenerator.getX())");
 };
