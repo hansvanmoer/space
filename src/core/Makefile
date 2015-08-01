@@ -101,8 +101,8 @@ am__v_AR_1 =
 libcore_a_AR = $(AR) $(ARFLAGS)
 libcore_a_LIBADD =
 am_libcore_a_OBJECTS = libcore_a-Path.$(OBJEXT) \
-	libcore_a-Language.$(OBJEXT) libcore_a-Resource.$(OBJEXT) \
-	libcore_a-StringBundle.$(OBJEXT)
+	libcore_a-Properties.$(OBJEXT) libcore_a-Language.$(OBJEXT) \
+	libcore_a-Resource.$(OBJEXT) libcore_a-StringBundle.$(OBJEXT)
 libcore_a_OBJECTS = $(am_libcore_a_OBJECTS)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -250,7 +250,7 @@ top_build_prefix = ../../
 top_builddir = ../..
 top_srcdir = ../..
 noinst_LIBRARIES = libcore.a
-libcore_a_SOURCES = Path.cpp Language.cpp Resource.cpp StringBundle.cpp
+libcore_a_SOURCES = Path.cpp Properties.cpp Language.cpp Resource.cpp StringBundle.cpp
 libcore_a_CPPFLAGS = -std=c++11
 all: all-am
 
@@ -303,6 +303,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/libcore_a-Language.Po
 include ./$(DEPDIR)/libcore_a-Path.Po
+include ./$(DEPDIR)/libcore_a-Properties.Po
 include ./$(DEPDIR)/libcore_a-Resource.Po
 include ./$(DEPDIR)/libcore_a-StringBundle.Po
 
@@ -333,6 +334,20 @@ libcore_a-Path.obj: Path.cpp
 #	$(AM_V_CXX)source='Path.cpp' object='libcore_a-Path.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Path.obj `if test -f 'Path.cpp'; then $(CYGPATH_W) 'Path.cpp'; else $(CYGPATH_W) '$(srcdir)/Path.cpp'; fi`
+
+libcore_a-Properties.o: Properties.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Properties.o -MD -MP -MF $(DEPDIR)/libcore_a-Properties.Tpo -c -o libcore_a-Properties.o `test -f 'Properties.cpp' || echo '$(srcdir)/'`Properties.cpp
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libcore_a-Properties.Tpo $(DEPDIR)/libcore_a-Properties.Po
+#	$(AM_V_CXX)source='Properties.cpp' object='libcore_a-Properties.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Properties.o `test -f 'Properties.cpp' || echo '$(srcdir)/'`Properties.cpp
+
+libcore_a-Properties.obj: Properties.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Properties.obj -MD -MP -MF $(DEPDIR)/libcore_a-Properties.Tpo -c -o libcore_a-Properties.obj `if test -f 'Properties.cpp'; then $(CYGPATH_W) 'Properties.cpp'; else $(CYGPATH_W) '$(srcdir)/Properties.cpp'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libcore_a-Properties.Tpo $(DEPDIR)/libcore_a-Properties.Po
+#	$(AM_V_CXX)source='Properties.cpp' object='libcore_a-Properties.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libcore_a-Properties.obj `if test -f 'Properties.cpp'; then $(CYGPATH_W) 'Properties.cpp'; else $(CYGPATH_W) '$(srcdir)/Properties.cpp'; fi`
 
 libcore_a-Language.o: Language.cpp
 	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libcore_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libcore_a-Language.o -MD -MP -MF $(DEPDIR)/libcore_a-Language.Tpo -c -o libcore_a-Language.o `test -f 'Language.cpp' || echo '$(srcdir)/'`Language.cpp
