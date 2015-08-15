@@ -16,6 +16,7 @@
 
 #include "Script.h"
 #include "MapGenerator.h"
+#include "IO.h"
 
 using namespace Game;
 using Core::Path;
@@ -72,7 +73,12 @@ void shutdownSubSystems() {
 }
 
 void testScript(){
-    Game::testMapGenerator();
+    //Game::testMapGenerator();
+    IO::Properties props;
+    IO::loadProperties(ApplicationSystem<DataSystem>::instance().dataPath().child("properties"), props);
+    for(auto prop : props){
+        std::cout <<"'"<< prop.first << "' : '" << prop.second << "'" << std::endl;
+    }
 };
 
 int main(int argCount, const char **args) {
